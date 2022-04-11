@@ -2,6 +2,6 @@
     "configuration": "cpu=atmega2560",
     "board": "arduino:avr:mega",
     "port": "COM3",
-    "sketch": "blink.ino",
+    "sketch": "hx711.ino",
     "programmer": "arduino:avrisp"
 }
