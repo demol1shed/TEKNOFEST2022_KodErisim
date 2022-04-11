@@ -1,4 +1,4 @@
-/*//BTS7960 motor driver sketch 
+//BTS7960 motor driver sketch 
 
 int R_IS = 6;
 int R_EN = 2;
@@ -40,4 +40,4 @@ void loop(){
 void clkAnalogWrite(int _x){
     analogWrite(R_PWM, _x);
     analogWrite(L_PWM, 0);
-}*/
+}

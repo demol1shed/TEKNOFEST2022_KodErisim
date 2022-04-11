@@ -1,4 +1,4 @@
-/*include <Arduino.h>
+#include <Arduino.h>
 #define MZ80 10 // MZ80 pin
 #define led 13  // MZ80 uyacıcı led 
 int val;
@@ -23,4 +23,4 @@ void mz80Loop(){
         digitalWrite(LED_BUILTIN, LOW);
         delay(500);
     } 
-}*/
+}
