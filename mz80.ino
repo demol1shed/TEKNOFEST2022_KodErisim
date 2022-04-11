@@ -1,9 +1,11 @@
 #include <Arduino.h>
+
 #define MZ80 10 // MZ80 pin
 #define led 13  // MZ80 uyacıcı led 
+
 int val;
 
-void mz80Setup(){
+void setup(){
     // MZ80 gelen veri
     pinMode(MZ80, INPUT);
     // Led output
@@ -11,10 +13,14 @@ void mz80Setup(){
     Serial.begin(9600);
 }
 
-void mz80Loop(){
+void loop(){
     // Değer MZ80'den gelen input.
     val = digitalRead(MZ80);
     Serial.println(val);
+    LedV();
+}
+
+void LedV(){
     // Eğer MZ80 görüyorsa,
     if(val == 0){ 
         digitalWrite(LED_BUILTIN, HIGH); 

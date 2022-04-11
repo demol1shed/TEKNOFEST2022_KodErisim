@@ -19,9 +19,7 @@ bool newData = false;
 
 unsigned long currentMillis;
 unsigned long prevMillis;
-unsigned long txIntervalMillis = 1000; // saniyede bir gönder
-
-//===============
+unsigned long txIntervalMillis = 1000; // saniyede bir gönder.
 
 void setup() {
     Serial.begin(9600);
@@ -38,8 +36,6 @@ void setup() {
     txTrans.openWritingPipe(slaveAddress);
 }
 
-//=============
-
 void loop() {
     // Başlangıçta geçen zamanı son verinin gönderildiği zamandan çıkararak planlanmış 1sn'lik süreyi beklemesini sağlar.
     currentMillis = millis();
@@ -50,8 +46,6 @@ void loop() {
     // Gönderme işlemi sonrasında verileri göster.
     showData();
 }
-
-//================
 
 void send() {
     bool rslt;
@@ -80,8 +74,6 @@ void send() {
     prevMillis = millis();
  }
 
-//=================
-
 void showData() {
     if (newData == true) {
         Serial.print("Veri farkedildi.");
@@ -93,8 +85,6 @@ void showData() {
     }
 }
 
-//================
-
 void updateMessage() {
     // Gelen yeni veriyi görebilmek için. 
     txNum += 1;
@@ -102,34 +92,4 @@ void updateMessage() {
         txNum = '0';
     }
     dataToSend[8] = txNum;
-}
-
-/*//Include Libraries
-#include <SPI.h>
-#include <nRF24L01.h>
-#include <RF24.h>
-
-//create an RF24 object
-RF24 radio(9, 8);  // CE, CSN
-
-//address through which two modules communicate.
-const byte address[6] = "00001";
-
-void setup()
-{
-  radio.begin();
-  
-  //set the address
-  radio.openWritingPipe(address);
-  
-  //Set module as transmitter
-  radio.stopListening();
-}
-void loop()
-{
-  //Send message to receiver
-  const char text[] = "Hello World";
-  radio.write(&text, sizeof(text));
-  
-  delay(1000);
 }
