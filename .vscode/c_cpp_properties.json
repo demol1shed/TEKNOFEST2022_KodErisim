@@ -19,7 +19,9 @@
                 "C:\\Program Files (x86)\\arduino-1.8.19\\hardware\\arduino\\avr\\variants\\mega",
                 "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\lib\\gcc\\avr\\7.3.0\\include",
                 "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\lib\\gcc\\avr\\7.3.0\\include-fixed",
-                "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\avr\\include"
+                "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\avr\\include",
+                "C:\\Users\\user\\Documents\\Arduino\\libraries\\BTS7960B\\src",
+                "C:\\Users\\user\\Documents\\Arduino\\libraries\\MZ80\\src"
             ],
             "forcedInclude": [
                 "C:\\Program Files (x86)\\arduino-1.8.19\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"
