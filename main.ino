@@ -1,3 +1,4 @@
+// her pc'de çalışmayacak.
 #include "C:\Users\user\Documents\Arduino\libraries\Custom_Headers\src\BTS7960B.h"
 #include "C:\Users\user\Documents\Arduino\libraries\Custom_Headers\src\MZ80.h"
 #include <Arduino.h>
