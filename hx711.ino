@@ -17,3 +17,4 @@ void loop() {
   Serial.print("Kurulum başarılı.");
   delay(500);
 }
+//asd
