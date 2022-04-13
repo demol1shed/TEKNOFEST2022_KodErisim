@@ -1,4 +1,4 @@
-// TxAck verici kod.
+/*// TxAck verici kod.
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -92,4 +92,4 @@ void updateMessage() {
         txNum = '0';
     }
     dataToSend[8] = txNum;
-}
+}*/

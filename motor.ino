@@ -1,4 +1,4 @@
-//BTS7960 motor driver sketch 
+/*//BTS7960 motor driver sketch 
 #pragma region define bloğu
 #define R_IS 6
 #define R_EN 2
@@ -54,4 +54,4 @@ void Main(){
             delay(250);
         }
     }
-}
+}*/

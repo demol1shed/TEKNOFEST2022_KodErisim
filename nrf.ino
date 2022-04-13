@@ -1,4 +1,4 @@
-#include <SPI.h>
+/*#include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
 
@@ -34,4 +34,4 @@ void Main(){
     radio.read(&text, sizeof(text));
     Serial.println(text);
   }
-}
+}*/
