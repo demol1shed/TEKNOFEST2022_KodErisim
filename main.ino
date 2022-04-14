@@ -262,7 +262,7 @@ void loop(){
 
 }*/
 
-#include <Wire.h>    
+/*#include <Wire.h>    
  
 #define disk1 0x57    //Address of 24LC256 eeprom chip
  
@@ -304,4 +304,6 @@ byte readEEPROM(int deviceaddress, unsigned int eeaddress )
   if (Wire.available()) rdata = Wire.read();
  
   return rdata;
-}
+}*/
+
+//LIB FOLDER MAY THROW ERRORS AT COMPILE TIME.
