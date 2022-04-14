@@ -1,5 +1,5 @@
-#include <Arduino.h>
-//#include <Q2HX711.h>
+/*#include <Arduino.h>
+#include <Q2HX711.h>
 
 //deneme
 
@@ -17,4 +17,4 @@ void loop() {
   Serial.print("Kurulum başarılı.");
   delay(500);
 }
-//asd
+//asd*/

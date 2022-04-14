@@ -1,6 +1,21 @@
+/*/*
+ * See documentation at https://nRF24.github.io/RF24
+ * See License information at root directory of this library
+ * Author: Brendan Doherty (2bndy5)
+ */
+
+/**
+ * A simple example of sending data from 1 nRF24L01 transceiver to another.
+ *
+ * This example was written to be used on 2 devices acting as "nodes".
+ * Use the Serial Monitor to change each node's behavior.
+ 
 #include <SPI.h>
 #include "printf.h"
 #include "RF24.h"
+
+#define JOY_X_A10 10
+#define JOY_Y_A11 11
 
 // instantiate an object for the nRF24L01 transceiver
 RF24 radio(9, 10); // using pin 7 for the CE pin, and pin 8 for the CSN pin
@@ -20,7 +35,9 @@ bool role = false;  // true = TX role, false = RX role
 // For this example, we'll be using a payload containing
 // a single float number that will be incremented
 // on every successful transmission
-float payload = 0.0;
+// float payload = 0.0;
+// vectoralPayloads[0] = xVector, vectoralPayloads[1] = yVector
+int vectoralPayloads[2] = {0,0};
 
 void setup() {
 
@@ -58,7 +75,7 @@ void setup() {
 
   // save on transmission time by setting the radio to only transmit the
   // number of bytes we need to transmit a float
-  radio.setPayloadSize(sizeof(payload)); // float datatype occupies 4 bytes
+  // radio.setPayloadSize(sizeof(payload)); // float datatype occupies 4 bytes
 
   // set the TX address of the RX node into the TX pipe
   radio.openWritingPipe(address[radioNumber]);     // always uses pipe 0
@@ -81,12 +98,26 @@ void setup() {
 } // setup
 
 void loop() {
-
+  joystick();                                              // record joystick input
   if (role) {
     // This device is a TX node
 
     unsigned long start_timer = micros();                    // start the timer
-    bool report = radio.write(&payload, sizeof(float));      // transmit & save the report
+    bool report;
+    int counter;
+    for(int a = 0; a < 2; a++){
+      radio.write(&vectoralPayloads[a], sizeof(vectoralPayloads[a]));
+      counter++;                                             // transmit & save the report
+    }
+    switch (counter){
+    case 1:
+      Serial.println("Only the x vector loaded.");
+      break;
+    case 2:
+      Serial.println("Both vectors successfully loaded.");
+      break;
+    }
+    
     unsigned long end_timer = micros();                      // end the timer
 
     if (report) {
@@ -94,33 +125,39 @@ void loop() {
       Serial.print(F("Time to transmit = "));
       Serial.print(end_timer - start_timer);                 // print the timer result
       Serial.print(F(" us. Sent: "));
-      Serial.println(payload);                               // print payload sent
-      payload += 0.01;                                       // increment float payload
+      //Serial.println(payload);                               // print payload sent
+      //payload += 0.01;                                       // increment float payload
+
     } else {
       Serial.println(F("Transmission failed or timed out")); // payload was not delivered
     }
 
     // to make this example readable in the serial monitor
-    delay(1000);  // slow transmissions down by 1 second
+    // can be decreased to increase the reaction speed of the joystick controllers.
+    delay(250);  // slow transmissions down by 1 second
 
   } else {
     // This device is a RX node
 
     uint8_t pipe;
-    if (radio.available(&pipe)) {             // is there a payload? get the pipe number that recieved it
-      uint8_t bytes = radio.getPayloadSize(); // get the size of the payload
-      radio.read(&payload, bytes);            // fetch payload from FIFO
-      Serial.print(F("Received "));
-      Serial.print(bytes);                    // print the size of the payload
-      Serial.print(F(" bytes on pipe "));
-      Serial.print(pipe);                     // print the pipe number
+    if (radio.available(&pipe)){             // is there a payload? get the pipe number that recieved it
+      //uint8_t bytes = radio.getPayloadSize(); // get the size of the payload
+      //radio.read(&payload, bytes);            // fetch payload from FIFO
+      // verilerin toplandığı nokta.
+      /*for(int i = 0; i < 2; i++)
+        radio.read(&vectoralPayloads[i], sizeof(vectoralPayloads[i]));*/
+      /*Serial.print(F("Received "));
+      //Serial.print((int)(sizeof(vectoralPayloads[0]) + sizeof(vectoralPayloads[1])));                    // print the size of the payload
+      Serial.print(F(" Bytes on pipe "));
+      Serial.print(pipe);                                 // print the pipe number
       Serial.print(F(": "));
-      Serial.println(payload);                // print the payload's value
-    }
+      /*for(int j = 0; j < 2; j++)
+        Serial.print(vectoralPayloads[j]);                // print the payload's value
+        Serial.print('\t');*/
+   // }
+  //} // role
 
-  } // role
-
-  if (Serial.available()) {
+  /*if (Serial.available()) {
     // change the role via the serial monitor
 
     char c = toupper(Serial.read());
@@ -138,7 +175,15 @@ void loop() {
       Serial.println(F("*** CHANGING TO RECEIVE ROLE -- PRESS 'T' TO SWITCH BACK"));
       radio.startListening();
     }
-   
   }
+}
 
-} 
+void joystick(){
+  vectoralPayloads[0] = analogRead(JOY_X_A10);
+  vectoralPayloads[1] = analogRead(JOY_Y_A11);
+  Serial.print(vectoralPayloads[0]);
+  Serial.print('\t');
+  Serial.println(vectoralPayloads[1]);
+  delay(250);
+}
+*/
