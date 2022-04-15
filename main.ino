@@ -246,64 +246,30 @@ int vectoralPayloads[2] = {0,0};
 }*/
 #pragma endregion
 
-/*#include <nRF.h>
-#include <joystick.h>
+#include "nRF.h"
+#include "joystick.h"
 
-uint8_t address[][6] = {"1Node", "2Node"};
+#define CE_PIN 7
+#define CSN_PIN 8
 
-nRFModule radio(9, 10, address, 0);
-Joystick joystick(10, 11);
+#define JOY_X 0
+#define JOY_Y 1
+
+uint8_t adres[2][6] = {"1Node", "2Node"};
+
+nRFModule radioModule(CE_PIN, CSN_PIN, adres, 0);
+Joystick joystick(JOY_X, JOY_Y);
+int payload[2];
+RF24 radio;
 
 void setup(){
-  RF24 nRFMod = radio.nRFSetup(0);
+  radio = radioModule.nRFSetup('R');
+  for(int i = 0; i < 2; i++){
+    payload[i] = joystick.inputVectors[i];
+  }
+  Serial.println("RX Kurulumu tamamlandi");
 }
 
 void loop(){
-
-}*/
-
-/*#include <Wire.h>    
- 
-#define disk1 0x57    //Address of 24LC256 eeprom chip
- 
-void setup(void)
-{
-  Serial.begin(9600);
-  Wire.begin();  
- 
-  unsigned int address = 0;
- 
-  writeEEPROM(disk1, address, 123);
-  Serial.print(readEEPROM(disk1, address), DEC);
+  radioModule.nRFReceive(radio, payload);
 }
- 
-void loop(){}
- 
-void writeEEPROM(int deviceaddress, unsigned int eeaddress, byte data ) 
-{
-  Wire.beginTransmission(deviceaddress);
-  Wire.write((int)(eeaddress >> 8));   // MSB
-  Wire.write((int)(eeaddress & 0xFF)); // LSB
-  Wire.write(data);
-  Wire.endTransmission();
- 
-  delay(5);
-}
- 
-byte readEEPROM(int deviceaddress, unsigned int eeaddress ) 
-{
-  byte rdata = 0xFF;
- 
-  Wire.beginTransmission(deviceaddress);
-  Wire.write((int)(eeaddress >> 8));   // MSB
-  Wire.write((int)(eeaddress & 0xFF)); // LSB
-  Wire.endTransmission();
- 
-  Wire.requestFrom(deviceaddress,1);
- 
-  if (Wire.available()) rdata = Wire.read();
- 
-  return rdata;
-}*/
-
-//LIB FOLDER MAY THROW ERRORS AT COMPILE TIME.

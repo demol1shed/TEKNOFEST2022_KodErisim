@@ -17,10 +17,13 @@
             "includePath": [
                 "C:\\Program Files (x86)\\arduino-1.8.19\\hardware\\arduino\\avr\\cores\\arduino",
                 "C:\\Program Files (x86)\\arduino-1.8.19\\hardware\\arduino\\avr\\variants\\mega",
-                "C:\\Program Files (x86)\\arduino-1.8.19\\hardware\\arduino\\avr\\libraries\\Wire\\src",
                 "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\lib\\gcc\\avr\\7.3.0\\include",
                 "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\lib\\gcc\\avr\\7.3.0\\include-fixed",
-                "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\avr\\include"
+                "c:\\program files (x86)\\arduino-1.8.19\\hardware\\tools\\avr\\avr\\include",
+                "C:\\Users\\user\\Documents\\Arduino\\libraries\\nRF_Library\\src",
+                "C:\\Users\\user\\Documents\\Arduino\\libraries\\Joystick\\src",
+                "C:\\Users\\user\\Documents\\Arduino\\libraries\\RF24",
+                "C:\\Program Files (x86)\\arduino-1.8.19\\hardware\\arduino\\avr\\libraries\\SPI\\src"
             ],
             "forcedInclude": [
                 "C:\\Program Files (x86)\\arduino-1.8.19\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"
