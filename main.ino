@@ -1,43 +1,56 @@
-#include <nRF24.h>
+/*#include <nRF24.h>
 #include <SPI.h>
 #include <RF24.h>
 #include <BTS7960B.h>
 
-
+#define CE 48
+#define CSN 43
 #define RPWM 13
 #define LPWM 12
 #define RPWM2 11
 #define LPWM2 10
 
+const int sabitDeger = 135;
+const int sabitDeger2 = 127;
+
 // ALICI PARÇA
 BTS7960B motor(RPWM, LPWM);
 BTS7960B motor2(RPWM2, LPWM2);
-// RF24 radio(CE, CSN);
-// nRF24 radioModule;
-int durum = 0;
+RF24 radio(CE, CSN);
+nRF24 radioModule;
 
 void setup(){
   Serial.begin(9600);
-  // radio = radioModule.nRF24ReceiverSetup(radio, RF24_PA_MIN, 9600, RF24_250KBPS);
-}
+  //radio = radioModule.nRF24ReceiverSetup(radio, RF24_PA_LOW, 9600, RF24_250KBPS);
+}*/
 
-void loop(){
-  // radioModule.nRF24Receive(radio);
-  //Serial.println(radioModule.receivingValues[0]);
-  unsigned long started = millis();
-  while(millis() - started < 2000){
-    motor.CCLKWTURN(255);
-    motor2.CCLKWTURN(255);
-    //Serial.println("cclockwise");
-    //Serial.println("cclockwise");
-  }
-  unsigned long started2 = millis();
-  while(millis() - started2 < 5000){
-    motor.CLKWTURN(255);
-    motor2.CLKWTURN(255);
-  }
-}
 
+
+//void loop(){
+  #pragma region main
+  /*radioModule.nRF24Receive(radio);
+  if(radioModule.receivingValues[0] == sabitDeger){
+    motor.CLKWTURN(0);
+    motor.CCLKWTURN(0);
+  }
+  if(radioModule.receivingValues[1] == sabitDeger2){
+    motor2.CLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }
+  if(radioModule.receivingValues[0] > sabitDeger){
+    motor.CCLKWTURN(map(radioModule.receivingValues[0], sabitDeger, 255, 0, 255));
+  }else if(radioModule.receivingValues[0] < sabitDeger){
+    motor.CLKWTURN(map(radioModule.receivingValues[0], 0, sabitDeger, -255, 0) * -1);
+  }
+  if(radioModule.receivingValues[1] > sabitDeger2){
+    motor2.CCLKWTURN(map(radioModule.receivingValues[1], sabitDeger2, 255, 0, 255));
+  }else if(radioModule.receivingValues[1] < sabitDeger2){
+    motor2.CLKWTURN(map(radioModule.receivingValues[1], 0, sabitDeger2, -255, 0) * -1);
+  }*/
+  #pragma endregion
+//}
+
+#pragma region ornekekran
 /*// Inclusão das Bibliotecas
 #include <Wire.h>
 #include "U8glib.h"
@@ -146,30 +159,61 @@ void draw2(void)
   u8g2.drawStr( 0, 20, bufferY);
   u8g2.drawStr( 0, 60, bufferZ);
 }*/
+#pragma endregion
+
 #pragma region ekran
-/*#include <ekran.h>
+#include <ekran.h>
 #include "U8glib.h"
 
 const int ekranSayisi = 3;
 const char* mesajlar[3] = {"kod", "erisim", "kod erisim"};
+const char* mesajlar1[3] = {"kodA", "erisimA", "kod erisimA"};
+const char* mesajlar2[3] = {"kodB", "erisimB", "kod erisimB"};
 byte durumlar[3][ekranSayisi] = {{LOW,LOW,LOW}, {HIGH,LOW,LOW}, {LOW,HIGH,LOW}};
 OledEkran ekranModul(0, 20);
 
 U8GLIB_SSD1306_128X64 ekran(U8G_I2C_OPT_NONE | U8G_I2C_OPT_DEV_0);
 U8GLIB_SSD1306_128X64 ekran1(U8G_I2C_OPT_NONE | U8G_I2C_OPT_DEV_0);
+U8GLIB_SSD1306_128X64 ekran2(U8G_I2C_OPT_NONE | U8G_I2C_OPT_DEV_0);
 
 
 void setup(){
   ekranModul.SetupPins();
   // flip screen, if required
-  ekran.setRot180();
   ekran1.setRot180();
+  ekran2.setRot180();
 }
 
 void loop(){
-  ekranModul.SetDisp(durumlar[1]);
-  ekranModul.WriteToScreen(ekran, mesajlar);
-  ekranModul.SetDisp(durumlar[0]);
-  ekranModul.WriteToScreen(ekran1, mesajlar);
-}*/
+ ekranGuncelle();
+}
+
+void ekranGuncelle(){
+  ekranModul.SetDisp(LOW, LOW, LOW);
+  sprintf(ekranModul.bufferX, mesajlar[0]);
+  sprintf(ekranModul.bufferY, mesajlar[1]);
+  sprintf(ekranModul.bufferZ, mesajlar[2]);
+  ekran.firstPage();
+  do {
+    ekranModul.DrawString(ekran);
+  } while ( ekran.nextPage() );
+ 
+  ekranModul.SetDisp(HIGH, LOW, LOW);
+  sprintf(ekranModul.bufferX, mesajlar1[0]);
+  sprintf(ekranModul.bufferY, mesajlar1[1]);
+  sprintf(ekranModul.bufferZ, mesajlar1[2]);
+  ekran1.firstPage();
+  do {
+      ekranModul.DrawString(ekran1);
+  } while ( ekran1.nextPage() ); 
+  
+  ekranModul.SetDisp(LOW, HIGH, LOW);
+  sprintf(ekranModul.bufferX, mesajlar2[0]);
+  sprintf(ekranModul.bufferY, mesajlar2[1]);
+  sprintf(ekranModul.bufferZ, mesajlar2[2]);
+  ekran2.firstPage();
+  do {
+      ekranModul.DrawString(ekran2);
+  } while ( ekran2.nextPage() ); 
+}
 #pragma endregion
