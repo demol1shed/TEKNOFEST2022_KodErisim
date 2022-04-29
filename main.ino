@@ -1,9 +1,13 @@
-#pragma region includelar
-#include <nRF24.h>
+#pragma region Kütüphaneler
+// Hazır kütüphaneler
 #include <SPI.h>
 #include <RF24.h>
+// Özel kütüphaneler
+#include <nRF24.h>
 #include <BTS7960B.h>
 #include <MZ80.h>
+#include <ekran.h>
+#include <joystick.h>
 #pragma endregion
 
 #pragma region nRF Pinleri
