@@ -1,7 +1,0 @@
-{
-    "configuration": "cpu=atmega2560",
-    "board": "arduino:avr:mega",
-    "port": "/dev/tty.usbserial-10",
-    "sketch": "nrfexemple.ino",
-    "programmer": "arduino:avrisp"
-}
