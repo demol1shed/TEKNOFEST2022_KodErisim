@@ -6,7 +6,6 @@
 #include <nRF24.h>
 #include <BTS7960B.h>
 #include <MZ80.h>
-#include <ekran.h>
 #include <joystick.h>
 #pragma endregion
 
@@ -34,6 +33,8 @@ const int sabitDeger2 = 129;
 // Optik sensör sayısı.
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
+RF24 radyo(CE, CSN);
+nRF24 radyoModulu;
 
 #pragma region MZ80 Constructorlari
 MZ80 optik(MZPIN);   // sağ
@@ -48,10 +49,8 @@ BTS7960B motor(RPWM, LPWM);
 BTS7960B motor2(RPWM2, LPWM2);
 #pragma endregion
 
-RF24 radyo(CE, CSN);
-nRF24 radyoModulu;
-
 #pragma region MZ80 arrayleri
+
 MZ80 onOptikler[onOptikSayisi] = {
   optik2,
   optik3,
@@ -65,101 +64,42 @@ MZ80 yanOptikler[yanOptikSayisi] = {
 
 void setup(){
   Serial.begin(9600);
-  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_MAX, 9600, RF24_250KBPS);
+  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_MIN, 9600, RF24_250KBPS);
 }
 
 void loop(){
-  iso();
+  Kontrol();
 }
 
-void iso(){
+void Kontrol(){
   radyoModulu.nRF24VeriAl(radyo);
-  int x;
+  /*int x;
   // Her optikten gelen 1 veya 0 verilerini al ve toplar.
   for(int i = 0; i < onOptikSayisi; i++){
     x += onOptikler[i].MZ80_OKU();
-  }
+  }*/
   // Eğer optiklerden herhangi biri 1 verdiyse kontrolü reddeder. 
   // NOT: 1 olduktan sonra kontrol mümkün olmayacak.
-  if(x != 0){
-    if(radyoModulu.alinanVeri[0] == sabitDeger){
-      motor.CLKWTURN(0);
-      motor.CCLKWTURN(0);
-    }
-    if(radyoModulu.alinanVeri[1] == sabitDeger2){
-      motor2.CLKWTURN(0);
-      motor2.CCLKWTURN(0);
-    }
-    if(radyoModulu.alinanVeri[0] > sabitDeger){
-      motor.CCLKWTURN(map(radyoModulu.alinanVeri[0], sabitDeger, 255, 0, 255));
-    }else if(radyoModulu.alinanVeri[0] < sabitDeger){
-      motor.CLKWTURN(map(radyoModulu.alinanVeri[0], 0, sabitDeger, -255, 0) * -1);
-    }
-    if(radyoModulu.alinanVeri[1] > sabitDeger2){
-      motor2.CCLKWTURN(map(radyoModulu.alinanVeri[1], sabitDeger2, 255, 0, 255));
-    }else if(radyoModulu.alinanVeri[1] < sabitDeger2){
-      motor2.CLKWTURN(map(radyoModulu.alinanVeri[1], 0, sabitDeger2, -255, 0) * -1);
-    }
-    if(radyoModulu.alinanVeri[0] == 0 && radyoModulu.alinanVeri[1] == 0){
-      motor.CCLKWTURN(0);
-      motor2.CCLKWTURN(0);
-    }
+  if(radyoModulu.alinanVeri[0] == sabitDeger){
+    motor.CLKWTURN(0);
+    motor.CCLKWTURN(0);
+  }
+  if(radyoModulu.alinanVeri[1] == sabitDeger2){
+    motor2.CLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }
+  if(radyoModulu.alinanVeri[0] > sabitDeger){
+    motor.CCLKWTURN(map(radyoModulu.alinanVeri[0], sabitDeger, 255, 0, 255));
+  }else if(radyoModulu.alinanVeri[0] < sabitDeger){
+    motor.CLKWTURN(map(radyoModulu.alinanVeri[0], 0, sabitDeger, -255, 0) * -1);
+  }
+  if(radyoModulu.alinanVeri[1] > sabitDeger2){
+    motor2.CCLKWTURN(map(radyoModulu.alinanVeri[1], sabitDeger2, 255, 0, 255));
+  }else if(radyoModulu.alinanVeri[1] < sabitDeger2){
+    motor2.CLKWTURN(map(radyoModulu.alinanVeri[1], 0, sabitDeger2, -255, 0) * -1);
+  }
+  if(radyoModulu.alinanVeri[0] == 0 && radyoModulu.alinanVeri[1] == 0){
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
   }
 }
-
-#pragma region ekran
-/*#include <ekran.h>
-#include "U8glib.h"
-
-const int ekranSayisi = 3;
-const char *mesajlar[3] = {"kod", "erisim", "kod erisim"};
-const char *mesajlar1[3] = {"kodA", "erisimA", "kod erisimA"};
-const char *mesajlar2[3] = {"kodB", "erisimB", "kod erisimB"};
-byte durumlar[3][ekranSayisi] = {{LOW, LOW, LOW}, {HIGH, LOW, LOW}, {LOW, HIGH, LOW}};
-OledEkran ekranModul(0, 20);
-
-U8GLIB_SSD1306_128X64 ekran(U8G_I2C_OPT_NONE | U8G_I2C_OPT_DEV_0);
-U8GLIB_SSD1306_128X64 ekran1(U8G_I2C_OPT_NONE | U8G_I2C_OPT_DEV_0);
-U8GLIB_SSD1306_128X64 ekran2(U8G_I2C_OPT_NONE | U8G_I2C_OPT_DEV_0);
-
-void setup(){
-  // Ekranı döndürür.
-  ekran1.setRot180();
-  ekran2.setRot180();
-}
-
-void loop()
-{
-  ekranGuncelle();
-}
-
-void ekranGuncelle()
-{
-  ekranModul.EkranKurulum(LOW, LOW, LOW);
-  sprintf(ekranModul.bufferX, mesajlar[0]);
-  sprintf(ekranModul.bufferY, mesajlar[1]);
-  sprintf(ekranModul.bufferZ, mesajlar[2]);
-  ekran.firstPage();
-  do {
-    ekranModul.EkranaYaz(ekran);
-  } while ( ekran.nextPage() );
-
-  ekranModul.EkranKurulum(HIGH, LOW, LOW);
-  sprintf(ekranModul.bufferX, mesajlar1[0]);
-  sprintf(ekranModul.bufferY, mesajlar1[1]);
-  sprintf(ekranModul.bufferZ, mesajlar1[2]);
-  ekran1.firstPage();
-  do {
-      ekranModul.EkranaYaz(ekran1);
-  } while ( ekran1.nextPage() );
-
-  ekranModul.EkranKurulum(LOW, HIGH, LOW);
-  sprintf(ekranModul.bufferX, mesajlar2[0]);
-  sprintf(ekranModul.bufferY, mesajlar2[1]);
-  sprintf(ekranModul.bufferZ, mesajlar2[2]);
-  ekran2.firstPage();
-  do {
-      ekranModul.EkranaYaz(ekran2);
-  } while ( ekran2.nextPage() ); 
-}*/
-#pragma endregion

@@ -1,6 +1,6 @@
 
-#include <MFRC522.h>
-#include <SPI.h>
+//#include <MFRC522.h>
+//#include <SPI.h>
 
 /*int rst = 3;
 int sda = 53;
