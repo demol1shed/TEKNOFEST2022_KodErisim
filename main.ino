@@ -37,9 +37,13 @@ const int sabitDeger2 = 129;
 // Optik sensör sayısı.
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
+
 bool switchDurumu;
+
+#pragma region nRF Constructorlari
 RF24 radyo(CE, CSN);
 nRF24 radyoModulu;
+#pragma endregion
 
 #pragma region MZ80 Constructorlari
 MZ80 optik(MZPIN);   // sağ optik
