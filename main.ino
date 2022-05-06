@@ -18,6 +18,8 @@
 #define LPWM 12
 #define RPWM2 11
 #define LPWM2 10
+#define RPWM3 6
+#define LPWM3 9
 #pragma endregion
 #pragma region MZ80 Pinleri
 #define MZPIN 32
@@ -27,30 +29,33 @@
 #define MZPIN4 40
 #pragma endregion
 
+#define ACILPIN 0
+
 // Motorların sabit durma değerleri
 const int sabitDeger = 125;
 const int sabitDeger2 = 129;
 // Optik sensör sayısı.
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
+bool switchDurumu;
 RF24 radyo(CE, CSN);
 nRF24 radyoModulu;
 
 #pragma region MZ80 Constructorlari
-MZ80 optik(MZPIN);   // sağ
-MZ80 optik1(MZPIN1); // sol 
-MZ80 optik2(MZPIN2); // ön sağ
-MZ80 optik3(MZPIN3); // ön orta
-MZ80 optik4(MZPIN4); // ön sol
+MZ80 optik(MZPIN);   // sağ optik
+MZ80 optik1(MZPIN1); // sol optik 
+MZ80 optik2(MZPIN2); // ön sağ optik
+MZ80 optik3(MZPIN3); // ön orta optik
+MZ80 optik4(MZPIN4); // ön sol optik
 #pragma endregion
 
 #pragma region Motor Constructorlari
-BTS7960B motor(RPWM, LPWM);
+BTS7960B motor(RPWM, LPWM); 
 BTS7960B motor2(RPWM2, LPWM2);
+BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 
 #pragma region MZ80 arrayleri
-
 MZ80 onOptikler[onOptikSayisi] = {
   optik2,
   optik3,
@@ -68,18 +73,43 @@ void setup(){
 }
 
 void loop(){
-  Kontrol();
+  if(!radyoModulu.radyoCalisti){
+    motor2.CCLKWTURN(0);
+    motor.CCLKWTURN(0);  
+  }else{
+    // Radyodan veriyi alır.
+    radyoModulu.nRF24VeriAl(radyo);
+    // Kumadadaki switchten gelen veriye göre aracın elektriğini kes.
+    AcilDurumKontrol();
+    // Sayıcı değişken.
+    int x;
+    // Öndeki her MZ80'den gelen verileri sayıcı değişkene kaydeder.
+    for(int i = 0; i < onOptikSayisi; i++){
+      x += onOptikler[i].MZ80_OKU();
+    }
+    // Eğer herhangi bir sensör 1 vermediyse...
+    if(x != 0){
+      Kontrol();
+    // Eğer herhangi bir sensör 1 verdiyse...  
+    }else{
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+    }
+  }
 }
 
 void Kontrol(){
-  radyoModulu.nRF24VeriAl(radyo);
   /*int x;
   // Her optikten gelen 1 veya 0 verilerini al ve toplar.
   for(int i = 0; i < onOptikSayisi; i++){
     x += onOptikler[i].MZ80_OKU();
   }*/
   // Eğer optiklerden herhangi biri 1 verdiyse kontrolü reddeder. 
-  // NOT: 1 olduktan sonra kontrol mümkün olmayacak.
+  // NOT: 1 olduktan sonra kontrol mümkün olmayacak.,
+  /**
+   * @note Çok fazla if kullanıldı, optimize edilmeli
+   * @todo switch() kullanılabilir.
+   */
   if(radyoModulu.alinanVeri[0] == sabitDeger){
     motor.CLKWTURN(0);
     motor.CCLKWTURN(0);
@@ -101,5 +131,11 @@ void Kontrol(){
   if(radyoModulu.alinanVeri[0] == 0 && radyoModulu.alinanVeri[1] == 0){
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
+  }
+}
+
+void AcilDurumKontrol(){
+  if(radyoModulu.alinanVeri[3] == 1){
+    digitalWrite(ACILPIN, 1);
   }
 }
