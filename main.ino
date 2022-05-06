@@ -44,7 +44,6 @@ bool switchDurumu;
 RF24 radyo(CE, CSN);
 nRF24 radyoModulu;
 #pragma endregion
-
 #pragma region MZ80 Constructorlari
 MZ80 optik(MZPIN);   // sağ optik
 MZ80 optik1(MZPIN1); // sol optik 
@@ -52,13 +51,11 @@ MZ80 optik2(MZPIN2); // ön sağ optik
 MZ80 optik3(MZPIN3); // ön orta optik
 MZ80 optik4(MZPIN4); // ön sol optik
 #pragma endregion
-
 #pragma region Motor Constructorlari
 BTS7960B motor(RPWM, LPWM); 
 BTS7960B motor2(RPWM2, LPWM2);
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
-
 #pragma region MZ80 arrayleri
 MZ80 onOptikler[onOptikSayisi] = {
   optik2,
