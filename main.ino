@@ -32,8 +32,7 @@
 #define ACILPIN 0
 
 // Motorların sabit durma değerleri
-const int sabitDeger = 125;
-const int sabitDeger2 = 129;
+const int sabitDeger[2] = {125, 129};
 // Optik sensör sayısı.
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
@@ -56,7 +55,7 @@ BTS7960B motor(RPWM, LPWM);
 BTS7960B motor2(RPWM2, LPWM2);
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
-#pragma region MZ80 arrayleri
+#pragma region MZ80 Arrayleri
 MZ80 onOptikler[onOptikSayisi] = {
   optik2,
   optik3,
@@ -65,6 +64,13 @@ MZ80 onOptikler[onOptikSayisi] = {
 MZ80 yanOptikler[yanOptikSayisi] = {
   optik,
   optik1,
+};
+#pragma endregion
+#pragma region Motor Arrayleri
+BTS7960B motorlar[3]{
+  motor,
+  motor2,
+  motorKirko
 };
 #pragma endregion
 
@@ -111,24 +117,9 @@ void Kontrol(){
    * @note Çok fazla if kullanıldı, optimize edilmeli
    * @todo switch() kullanılabilir.
    */
-  if(radyoModulu.alinanVeri[0] == sabitDeger){
-    motor.CLKWTURN(0);
-    motor.CCLKWTURN(0);
-  }
-  if(radyoModulu.alinanVeri[1] == sabitDeger2){
-    motor2.CLKWTURN(0);
-    motor2.CCLKWTURN(0);
-  }
-  if(radyoModulu.alinanVeri[0] > sabitDeger){
-    motor.CCLKWTURN(map(radyoModulu.alinanVeri[0], sabitDeger, 255, 0, 255));
-  }else if(radyoModulu.alinanVeri[0] < sabitDeger){
-    motor.CLKWTURN(map(radyoModulu.alinanVeri[0], 0, sabitDeger, -255, 0) * -1);
-  }
-  if(radyoModulu.alinanVeri[1] > sabitDeger2){
-    motor2.CCLKWTURN(map(radyoModulu.alinanVeri[1], sabitDeger2, 255, 0, 255));
-  }else if(radyoModulu.alinanVeri[1] < sabitDeger2){
-    motor2.CLKWTURN(map(radyoModulu.alinanVeri[1], 0, sabitDeger2, -255, 0) * -1);
-  }
+  SabitKal();
+  Hareket();
+  // Veri yoksa...
   if(radyoModulu.alinanVeri[0] == 0 && radyoModulu.alinanVeri[1] == 0){
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
@@ -140,3 +131,25 @@ void AcilDurumKontrol(){
     digitalWrite(ACILPIN, 1);
   }
 }
+
+void SabitKal(){
+  if(radyoModulu.alinanVeri[0] == sabitDeger[0]){
+    motor.CLKWTURN(0);
+    motor.CCLKWTURN(0);
+  }
+  if(radyoModulu.alinanVeri[1] == sabitDeger[1]){
+    motor2.CLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }
+}
+
+void Hareket(){
+  for(int i = 0; i < 2; i++){
+    if(radyoModulu.alinanVeri[i] > sabitDeger[i]){
+      motorlar[i].CCLKWTURN(map(radyoModulu.alinanVeri[0], sabitDeger[0], 255, 0, 255));
+    }else if(radyoModulu.alinanVeri[i] < sabitDeger[i]){
+      motorlar[i].CLKWTURN(map(radyoModulu.alinanVeri[1], 0, sabitDeger[1], -255, 0) * -1);
+    }
+  }
+}
+
