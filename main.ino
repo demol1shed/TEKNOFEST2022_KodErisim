@@ -29,7 +29,7 @@
 #define MZPIN4 40
 #pragma endregion
 
-#define ACILPIN 0
+#define ACILPIN 4
 
 // Motorların sabit durma değerleri
 const int sabitDeger = 125;
@@ -78,10 +78,6 @@ void loop(){
     motor2.CCLKWTURN(0);
     motor.CCLKWTURN(0);  
   }else{
-    // Radyodan veriyi alır.
-    radyoModulu.nRF24VeriAl(radyo);
-    // Kumadadaki switchten gelen veriye göre aracın elektriğini kes.
-    AcilDurumKontrol();
     // Sayıcı değişken.
     int x;
     // Öndeki her MZ80'den gelen verileri sayıcı değişkene kaydeder.
@@ -100,6 +96,10 @@ void loop(){
 }
 
 void Kontrol(){
+  // Radyodan veriyi alır.
+  radyoModulu.nRF24VeriAl(radyo);
+  // Kumadadaki switchten gelen veriye göre aracın elektriğini kes.
+  AcilDurumKontrol();
   /*int x;
   // Her optikten gelen 1 veya 0 verilerini al ve toplar.
   for(int i = 0; i < onOptikSayisi; i++){
@@ -136,7 +136,7 @@ void Kontrol(){
 }
 
 void AcilDurumKontrol(){
-  if(radyoModulu.alinanVeri[3] == 1){
+  if(radyoModulu.alinanVeri[2] == 0){
     digitalWrite(ACILPIN, 1);
   }
 }
