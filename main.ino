@@ -2,6 +2,7 @@
 // Hazır kütüphaneler
 #include <SPI.h>
 #include <RF24.h>
+#include <string.h>
 // Özel kütüphaneler
 #include <nRF24.h>
 #include <BTS7960B.h>
@@ -29,15 +30,16 @@
 #define MZPIN4 40
 #pragma endregion
 
-#define ACILPIN 0
-
 // Motorların sabit durma değerleri
 const int sabitDeger[2] = {125, 129};
 // Optik sensör sayısı.
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
+const int alinanVeriSayisi = 4;
 
 bool switchDurumu;
+bool veriDurumu = true;
+int alinanVeri[alinanVeriSayisi];
 
 #pragma region nRF Constructorlari
 RF24 radyo(CE, CSN);
@@ -76,19 +78,16 @@ BTS7960B motorlar[3]{
 
 void setup(){
   Serial.begin(9600);
-  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_MIN, 9600, RF24_250KBPS);
+  //radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_LOW, 9600, RF24_1MBPS);
 }
 
 void loop(){
-  if(!radyoModulu.radyoCalisti){
-    motor2.CCLKWTURN(0);
-    motor.CCLKWTURN(0);  
-  }else{
+  Serial.println("anan");
+  delay(1000);
     // Radyodan veriyi alır.
-    radyoModulu.nRF24VeriAl(radyo);
-    // Kumadadaki switchten gelen veriye göre aracın elektriğini kes.
-    AcilDurumKontrol();
-    // Sayıcı değişken.
+    /*veriDurumu = radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
+    switchDurumu = alinanVeri[3];*/
+    /*// Sayıcı değişken.
     int x;
     // Öndeki her MZ80'den gelen verileri sayıcı değişkene kaydeder.
     for(int i = 0; i < onOptikSayisi; i++){
@@ -101,8 +100,13 @@ void loop(){
     }else{
       motor.CCLKWTURN(0);
       motor2.CCLKWTURN(0);
+    }*/
+    /*if(!veriDurumu){
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+      motorKirko.CCLKWTURN(0);
     }
-  }
+    Kontrol();*/
 }
 
 void Kontrol(){
@@ -118,26 +122,26 @@ void Kontrol(){
    * @todo switch() kullanılabilir.
    */
   SabitKal();
-  Hareket();
+  if(!switchDurumu){
+    //Serial.println("Hareket modu");
+    Hareket();
+  }else{
+    //Serial.println("Kriko modu");
+    KrikoHareket();
+  }
   // Veri yoksa...
-  if(radyoModulu.alinanVeri[0] == 0 && radyoModulu.alinanVeri[1] == 0){
+  if((alinanVeri[0] == 0 && alinanVeri[1] == 0) || (alinanVeri[0] > 255 && alinanVeri[1] > 255) || (alinanVeri[0] < 0 && alinanVeri[1] < 0)){
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
   }
 }
 
-void AcilDurumKontrol(){
-  if(radyoModulu.alinanVeri[3] == 1){
-    digitalWrite(ACILPIN, 1);
-  }
-}
-
 void SabitKal(){
-  if(radyoModulu.alinanVeri[0] == sabitDeger[0]){
+  if(alinanVeri[0] == sabitDeger[0]){
     motor.CLKWTURN(0);
     motor.CCLKWTURN(0);
   }
-  if(radyoModulu.alinanVeri[1] == sabitDeger[1]){
+  if(alinanVeri[1] == sabitDeger[1]){
     motor2.CLKWTURN(0);
     motor2.CCLKWTURN(0);
   }
@@ -145,11 +149,25 @@ void SabitKal(){
 
 void Hareket(){
   for(int i = 0; i < 2; i++){
-    if(radyoModulu.alinanVeri[i] > sabitDeger[i]){
-      motorlar[i].CCLKWTURN(map(radyoModulu.alinanVeri[0], sabitDeger[0], 255, 0, 255));
-    }else if(radyoModulu.alinanVeri[i] < sabitDeger[i]){
-      motorlar[i].CLKWTURN(map(radyoModulu.alinanVeri[1], 0, sabitDeger[1], -255, 0) * -1);
+    if(alinanVeri[i] > sabitDeger[i]){
+      //Serial.print("motor " + i); Serial.println(" ileri");
+      motorlar[i].CCLKWTURN(map(alinanVeri[0], sabitDeger[0], 255, 0, 255));
+    }else if(alinanVeri[i] < sabitDeger[i]){
+      //Serial.print("motor" + i); Serial.println(" geri");
+      motorlar[i].CLKWTURN(map(alinanVeri[1], 0, sabitDeger[1], -255, 0) * -1);
     }
   }
 }
 
+void KrikoHareket(){
+  if(alinanVeri[1] > sabitDeger[1]){
+    //Serial.print("motor " + 2); Serial.println(" yukari");
+    motorlar[2].CCLKWTURN(map(alinanVeri[1], sabitDeger[1], 255, 0, 255));
+  }else if(alinanVeri[1] < sabitDeger[1]){
+    //Serial.print("motor " + 2); Serial.println(" asagi");
+    motorlar[2].CLKWTURN(map(alinanVeri[1], 0, sabitDeger[1], -255, 0) * -1);
+  }else if(alinanVeri[1] == sabitDeger[1]){
+    motorlar[2].CCLKWTURN(0);
+    motorlar[2].CLKWTURN(0);
+  }
+}
