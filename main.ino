@@ -78,35 +78,33 @@ BTS7960B motorlar[3]{
 
 void setup(){
   Serial.begin(9600);
-  //radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_LOW, 9600, RF24_1MBPS);
+  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS);
 }
 
 void loop(){
-  Serial.println("anan");
-  delay(1000);
-    // Radyodan veriyi alır.
-    /*veriDurumu = radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
-    switchDurumu = alinanVeri[3];*/
-    /*// Sayıcı değişken.
-    int x;
-    // Öndeki her MZ80'den gelen verileri sayıcı değişkene kaydeder.
-    for(int i = 0; i < onOptikSayisi; i++){
-      x += onOptikler[i].MZ80_OKU();
-    }
-    // Eğer herhangi bir sensör 1 vermediyse...
-    if(x != 0){
-      Kontrol();
-    // Eğer herhangi bir sensör 1 verdiyse...  
-    }else{
-      motor.CCLKWTURN(0);
-      motor2.CCLKWTURN(0);
-    }*/
-    /*if(!veriDurumu){
-      motor.CCLKWTURN(0);
-      motor2.CCLKWTURN(0);
-      motorKirko.CCLKWTURN(0);
-    }
-    Kontrol();*/
+  // Radyodan veriyi alır.
+  radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
+  switchDurumu = alinanVeri[3];
+  Kontrol();
+  /*// Sayıcı değişken.
+  int x;
+  // Öndeki her MZ80'den gelen verileri sayıcı değişkene kaydeder.
+  for(int i = 0; i < onOptikSayisi; i++){
+    x += onOptikler[i].MZ80_OKU();
+  }
+  // Eğer herhangi bir sensör 1 vermediyse...
+  if(x != 0){
+    Kontrol();
+  // Eğer herhangi bir sensör 1 verdiyse...  
+  }else{
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }*/
+  /*if(!veriDurumu){
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+    motorKirko.CCLKWTURN(0);
+  }*/
 }
 
 void Kontrol(){
@@ -151,10 +149,10 @@ void Hareket(){
   for(int i = 0; i < 2; i++){
     if(alinanVeri[i] > sabitDeger[i]){
       //Serial.print("motor " + i); Serial.println(" ileri");
-      motorlar[i].CCLKWTURN(map(alinanVeri[0], sabitDeger[0], 255, 0, 255));
+      motorlar[i].CCLKWTURN(map(alinanVeri[i], sabitDeger[i], 255, 0, 255));
     }else if(alinanVeri[i] < sabitDeger[i]){
       //Serial.print("motor" + i); Serial.println(" geri");
-      motorlar[i].CLKWTURN(map(alinanVeri[1], 0, sabitDeger[1], -255, 0) * -1);
+      motorlar[i].CLKWTURN(map(alinanVeri[i], 0, sabitDeger[i], -255, 0) * -1);
     }
   }
 }
