@@ -46,11 +46,16 @@ RF24 radyo(CE, CSN);
 nRF24 radyoModulu;
 #pragma endregion
 #pragma region MZ80 Constructorlari
-MZ80 optik(MZPIN);   // sağ optik
-MZ80 optik1(MZPIN1); // sol optik 
-MZ80 optik2(MZPIN2); // ön sağ optik
-MZ80 optik3(MZPIN3); // ön orta optik
-MZ80 optik4(MZPIN4); // ön sol optik
+// sağ optik
+MZ80 optik(MZPIN);
+// sol optik
+MZ80 optik1(MZPIN1);
+// ön sağ optik
+MZ80 optik2(MZPIN2);
+// ön orta optik
+MZ80 optik3(MZPIN3);
+// ön sol optik
+MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
 BTS7960B motor(RPWM, LPWM); 
@@ -85,7 +90,12 @@ void loop(){
   // Radyodan veriyi alır.
   radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
-  Kontrol();
+  if(EngelKontrol() == 0){
+    Kontrol();
+  }else{
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }
   /*// Sayıcı değişken.
   int x;
   // Öndeki her MZ80'den gelen verileri sayıcı değişkene kaydeder.
@@ -168,4 +178,12 @@ void KrikoHareket(){
     motorlar[2].CCLKWTURN(0);
     motorlar[2].CLKWTURN(0);
   }
+}
+
+int EngelKontrol(){
+  int x;
+  for(int i = 0; i < onOptikSayisi; i++){
+    x += onOptikler[i].MZ80_OKU();
+  }
+  return x;
 }
