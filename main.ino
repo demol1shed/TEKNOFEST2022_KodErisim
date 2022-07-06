@@ -64,15 +64,15 @@ BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 #pragma region MZ80 Arrayleri
 MZ80 onOptikler[onOptikSayisi] = {
-  optik2,
-  optik3,
-  optik4
+  optik,
+  optik1,
+  optik2
 };
 MZ80 yanOptikler[yanOptikSayisi] = {
   optik,
   optik1,
 };
-#pragma endregion
+#pragma endregion 
 #pragma region Motor Arrayleri
 BTS7960B motorlar[3]{
   motor,
@@ -93,6 +93,7 @@ void loop(){
   if(EngelKontrol() == 0){
     Kontrol();
   }else{
+    Serial.println("engel var hocam");
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
   }
@@ -181,7 +182,7 @@ void KrikoHareket(){
 }
 
 int EngelKontrol(){
-  int x;
+  int x = 0;
   for(int i = 0; i < onOptikSayisi; i++){
     x += onOptikler[i].MZ80_OKU();
   }
