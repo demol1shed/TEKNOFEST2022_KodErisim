@@ -5,6 +5,7 @@
 #include <string.h>
 // Özel kütüphaneler
 #include <nRF24.h>
+//anan
 #include <BTS7960B.h>
 #include <MZ80.h>
 #include <joystick.h>
