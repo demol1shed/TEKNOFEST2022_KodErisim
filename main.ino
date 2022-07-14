@@ -3,6 +3,7 @@
 #include <SPI.h>
 #include <RF24.h>
 #include <string.h>
+#include <SoftwareSerial.h>
 // Özel kütüphaneler
 #include <nRF24.h>
 
