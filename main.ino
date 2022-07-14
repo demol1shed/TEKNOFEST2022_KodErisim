@@ -5,7 +5,7 @@
 #include <string.h>
 // Özel kütüphaneler
 #include <nRF24.h>
-//anan
+
 #include <BTS7960B.h>
 #include <MZ80.h>
 #include <joystick.h>
@@ -29,6 +29,9 @@
 #define MZPIN2 36
 #define MZPIN3 38
 #define MZPIN4 40
+#pragma endregion
+#pragma region Qrkod
+SoftwareSerial mySerial(41,42);
 #pragma endregion
 
 // Motorların sabit durma değerleri
@@ -181,6 +184,56 @@ void KrikoHareket(){
     motorlar[2].CLKWTURN(0);
   }
 }
+
+#pragma region QrkodOku
+
+
+
+
+
+
+#pragma endregion 
+
+
+#pragma region QrkodKarşilaştir
+bool qrKarsilastir(){
+  int qrBeklenen[] = {1,2,3,4,1,2,3,2,1};
+  int qrGelen[];
+  int x = 0;
+  for(int i = 0; i < 8; i++){
+    if(qrGelen[i] == qrBeklenen[i]){
+      x++;
+    }
+  }
+  if(x == 8){
+    return true;
+  }
+}
+#pragma endregion
+
+#pragma region QrKodKaldir
+void qrKodKaldir(){
+  //eğer qr okunduysa
+  //motorkirko yukarı
+  //birkaç saniye devam
+  if(qrKarsilastir()){
+    motorlar[2].CCLKWTURN(255);
+    delay(5000);
+  }
+}
+#pragma endregion
+
+#pragma region QrKodİndir
+void qrKodİndir(){
+  //eğer qr okunduysa
+  //motorkirko yukarı
+  //birkaç saniye devam
+  if(qrKarsilastir()){
+    motorlar[2].CLKWTURN(255);
+    delay(5000);
+  }
+}
+#pragma endregion
 
 int EngelKontrol(){
   int x = 0;
