@@ -34,7 +34,10 @@
 #pragma region Qrkod
 SoftwareSerial mySerial(41,42);
 #pragma endregion
-
+//qrKod Değerleri
+char qrGelen[15] = {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'}; 
+int c ='0';
+int k=0;
 // Motorların sabit durma değerleri
 const int sabitDeger[2] = {125, 129};
 // Optik sensör sayısı.
@@ -88,6 +91,7 @@ BTS7960B motorlar[3]{
 
 void setup(){
   Serial.begin(9600);
+   mySerial.begin(9600);
   radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS);
 }
 
@@ -187,30 +191,33 @@ void KrikoHareket(){
 }
 
 #pragma region QrkodOku
+void qrKodOku(){
+  if (mySerial.available()) {
 
-
-
-
-
-
+    while (mySerial.available()) {
+      c = mySerial.read();
+      c=qrGelen[15];
+      delay(5);
+    }
+  }
+}
 #pragma endregion 
 
 
-#pragma region QrkodKarşilaştir
+
 bool qrKarsilastir(){
-  int qrBeklenen[] = {1,2,3,4,1,2,3,2,1};
-  int qrGelen[];
+  int qrBeklenen1[15] = {1,2,3,4,1,2,3,2,1};
+  int qrBeklenen2[15] = {1,2,3,4,1,2,3,2,1};
   int x = 0;
   for(int i = 0; i < 8; i++){
-    if(qrGelen[i] == qrBeklenen[i]){
+    if(qrGelen[i] == qrBeklenen1[i]){
       x++;
     }
   }
-  if(x == 8){
+  if(x == 8){ ;
     return true;
   }
 }
-#pragma endregion
 
 #pragma region QrKodKaldir
 void qrKodKaldir(){
@@ -227,7 +234,7 @@ void qrKodKaldir(){
 #pragma region QrKodİndir
 void qrKodİndir(){
   //eğer qr okunduysa
-  //motorkirko yukarı
+  //motorkirko aşağı
   //birkaç saniye devam
   if(qrKarsilastir()){
     motorlar[2].CLKWTURN(255);

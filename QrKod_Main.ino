@@ -7,7 +7,7 @@ int k = 0;
 void setup()
 {
   Serial.begin(9600);
-
+  Serial.print("hello");
   mySerial.begin(9600);
 }
 void loop()
