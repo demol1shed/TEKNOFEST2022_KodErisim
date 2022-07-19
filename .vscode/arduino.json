@@ -1,7 +1,6 @@
 {
-    "configuration": "cpu=atmega2560",
-    "board": "arduino:avr:mega",
+    "board": "arduino:avr:uno",
     "programmer": "arduino:avrisp",
-    "sketch": "main.ino",
-    "port": "COM3"
+    "sketch": "QrKod_Main.ino",
+    "port": "/dev/tty.usbserial-110"
 }

@@ -239,7 +239,6 @@ int qrKodKontrol()
     }
   }
 }
-
 #pragma endregion
 
 #pragma region QrKodKaldir
