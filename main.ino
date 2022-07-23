@@ -5,7 +5,7 @@
 #include <string.h>
 #include <SoftwareSerial.h>
 #include <math.h>
-// Özel kütüphaneler
+// Özel kütüphaneler.
 #include <nRF24.h>
 
 #include <BTS7960B.h>
