@@ -113,7 +113,7 @@ void loop()
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
   }
-  int deger = analogRead(A0);
+  int deger = analogRead(A12);
   double sicaklik = Termistor(deger);
   Serial.println(sicaklik);
   if (sicaklik > 34)
