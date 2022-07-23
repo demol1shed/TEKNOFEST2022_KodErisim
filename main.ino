@@ -4,6 +4,7 @@
 #include <RF24.h>
 #include <string.h>
 #include <SoftwareSerial.h>
+#include <math.h>
 // Özel kütüphaneler
 #include <nRF24.h>
 
@@ -33,7 +34,6 @@
 #pragma endregion
 #pragma region Qrkod
 SoftwareSerial mySerial(41, 42);
-#pragma endregion
 // qrKod Değerleri
 char qrGelen = '0';
 int x = 0;
@@ -41,6 +41,7 @@ int k = 0;
 char a[] = {"0000000"};
 char qrBeklenen1[15] = {'8', '6', '9', '1', '0', '5', '8', '1', '0', '0', '0', '1', '3'};
 char qrBeklenen2[15] = {"12345678"};
+#pragma endregion
 // Motorların sabit durma değerleri
 const int sabitDeger[2] = {125, 129};
 // Optik sensör sayısı.
@@ -112,25 +113,15 @@ void loop()
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
   }
-  /*// Sayıcı değişken.
-  int x;
-  // Öndeki her MZ80'den gelen verileri sayıcı değişkene kaydeder.
-  for(int i = 0; i < onOptikSayisi; i++){
-    x += onOptikler[i].MZ80_OKU();
+  int deger = analogRead(A0);
+  double sicaklik = Termistor(deger);
+  Serial.println(sicaklik);
+  if (sicaklik > 34)
+  {
   }
-  // Eğer herhangi bir sensör 1 vermediyse...
-  if(x != 0){
-    Kontrol();
-  // Eğer herhangi bir sensör 1 verdiyse...
-  }else{
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-  }*/
-  /*if(!veriDurumu){
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    motorKirko.CCLKWTURN(0);
-  }*/
+  else
+  {
+  }
 }
 
 void Kontrol()
@@ -215,7 +206,6 @@ void KrikoHareket()
   }
 }
 
-#pragma region QrKodKontrol
 int qrKodKontrol()
 {
   if (mySerial.available())
@@ -239,9 +229,7 @@ int qrKodKontrol()
     }
   }
 }
-#pragma endregion
 
-#pragma region QrKodKaldir
 void qrKodKaldir()
 {
   if (qrKodKontrol() == 0)
@@ -250,9 +238,7 @@ void qrKodKaldir()
     delay(5000);
   }
 }
-#pragma endregion
 
-#pragma region QrKodİndir
 void qrKodİndir()
 {
   if (qrKodKontrol() == 1)
@@ -261,7 +247,6 @@ void qrKodİndir()
     delay(5000);
   }
 }
-#pragma endregion
 
 int EngelKontrol()
 {
@@ -271,4 +256,14 @@ int EngelKontrol()
     x += onOptikler[i].MZ80_OKU();
   }
   return x;
+}
+
+double Termistor(int analogOkuma)
+{
+
+  double sicaklik;
+  sicaklik = log(((10240000 / analogOkuma) - 10000));
+  sicaklik = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * sicaklik * sicaklik)) * sicaklik);
+  sicaklik = sicaklik - 273.15;
+  return sicaklik;
 }

@@ -17,9 +17,9 @@
             "intelliSenseMode": "gcc-x64",
             "includePath": [
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/cores/arduino",
-                "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/variants/mega",
+                "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/variants/standard",
+                "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/SoftwareSerial/src",
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/SPI/src",
-                "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/SoftwareSerial",
                 "/Users/ckyasar/Documents/Arduino/libraries/RF24",
                 "/Users/ckyasar/Documents/Arduino/libraries/nRF24",
                 "/Users/ckyasar/Documents/Arduino/libraries/Joystick",
@@ -27,8 +27,7 @@
                 "/Users/ckyasar/Documents/Arduino/libraries/MZ80",
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/lib/gcc/avr/7.3.0/include",
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/lib/gcc/avr/7.3.0/include-fixed",
-                "/Users/ckyasar/Library/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/avr/include",
-                "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/SoftwareSerial/src"
+                "/Users/ckyasar/Library/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/avr/include"
             ],
             "forcedInclude": [
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/cores/arduino/Arduino.h"
@@ -38,7 +37,7 @@
             "defines": [
                 "F_CPU=16000000L",
                 "ARDUINO=10815",
-                "ARDUINO_AVR_MEGA2560",
+                "ARDUINO_AVR_UNO",
                 "ARDUINO_ARCH_AVR",
                 "__DBL_MIN_EXP__=(-125)",
                 "__HQ_FBIT__=15",
