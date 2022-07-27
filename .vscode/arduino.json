@@ -1,6 +1,0 @@
-{
-    "board": "arduino:avr:uno",
-    "programmer": "arduino:avrisp",
-    "sketch": "QrKod_Main.ino",
-    "port": "/dev/tty.usbserial-110"
-}
