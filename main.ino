@@ -258,6 +258,7 @@ int EngelKontrol()
   return x;
 }
 
+#pragma region Termistör
 double Termistor(int analogOkuma)
 {
 
@@ -267,3 +268,4 @@ double Termistor(int analogOkuma)
   sicaklik = sicaklik - 273.15;
   return sicaklik;
 }
+#pragma endregion
