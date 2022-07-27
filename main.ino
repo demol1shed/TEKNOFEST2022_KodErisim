@@ -5,6 +5,7 @@
 #include <string.h>
 #include <SoftwareSerial.h>
 #include <math.h>
+#include <Wire.h>
 // Özel kütüphaneler.
 #include <nRF24.h>
 
@@ -32,9 +33,19 @@
 #define MZPIN3 38
 #define MZPIN4 40
 #pragma endregion
+// gyro
+#pragma region Gyro
+const int MPU_addr = 0x68;
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+int minVal = 265;
+int maxVal = 402;
+double x;
+double y;
+double z;
+#pragma endregion
 #pragma region Qrkod
-SoftwareSerial mySerial(41, 42);
 // qrKod Değerleri
+SoftwareSerial mySerial(41, 42);
 char qrGelen = '0';
 int x = 0;
 int k = 0;
@@ -44,11 +55,12 @@ char qrBeklenen2[15] = {"12345678"};
 #pragma endregion
 // Motorların sabit durma değerleri
 const int sabitDeger[2] = {125, 129};
-// Optik sensör sayısı.
+
+#pragma region Optik Sensör Sayisi
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
 const int alinanVeriSayisi = 4;
-
+#pragma endregion
 bool switchDurumu;
 bool veriDurumu = true;
 int alinanVeri[alinanVeriSayisi];
@@ -96,6 +108,11 @@ void setup()
   Serial.begin(9600);
   mySerial.begin(9600);
   radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS);
+  Wire.begin();
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x6B);
+  Wire.write(0);
+  Wire.endTransmission(true);
 }
 
 void loop()
@@ -113,6 +130,7 @@ void loop()
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
   }
+#pragma region Term
   int deger = analogRead(A12);
   double sicaklik = Termistor(deger);
   Serial.println(sicaklik);
@@ -122,6 +140,21 @@ void loop()
   else
   {
   }
+#pragma endregion
+
+#pragma region GyroOku
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x3B);
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_addr, 14, true);
+  AcX = Wire.read() << 8 | Wire.read();
+  int xAng = map(AcX, minVal, maxVal, -90, 90);
+  int yAng = map(AcY, minVal, maxVal, -90, 90);
+  int zAng = map(AcZ, minVal, maxVal, -90, 90);
+  x = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
+  y = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
+  z = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
+#pragma endregion
 }
 
 void Kontrol()
@@ -239,7 +272,7 @@ void qrKodKaldir()
   }
 }
 
-void qrKodİndir()
+void qrKodIndir()
 {
   if (qrKodKontrol() == 1)
   {
@@ -259,6 +292,7 @@ int EngelKontrol()
 }
 
 #pragma region Termistör
+
 double Termistor(int analogOkuma)
 {
 
