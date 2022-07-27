@@ -19,7 +19,7 @@
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/cores/arduino",
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/variants/mega",
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/SPI/src",
-                "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/Wire",
+                "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/Wire/src", 
                 "/Users/ckyasar/Documents/Arduino/libraries/RF24",
                 "/Users/ckyasar/Library/Arduino15/packages/arduino/hardware/avr/1.8.5/libraries/SoftwareSerial/src",
                 "/Users/ckyasar/Documents/Arduino/libraries/nRF24",
