@@ -6,6 +6,7 @@
 #include <SoftwareSerial.h>
 #include <math.h>
 #include <Wire.h>
+#include <FastLED.h>
 // Özel kütüphaneler.
 #include <nRF24.h>
 
@@ -56,6 +57,13 @@ char qrBeklenen2[15] = {"12345678"};
 // Motorların sabit durma değerleri
 const int sabitDeger[2] = {125, 129};
 
+// NeoPixel
+#pragma region Neopixel A
+#define NUM_LEDS 82
+#define DATA_PIN 4
+#define BRIGHTNES 128
+CRGB leds[NUM_LEDS];
+#pragma endregion
 #pragma region Optik Sensör Sayisi
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
@@ -113,6 +121,7 @@ void setup()
   Wire.write(0x6B);
   Wire.write(0);
   Wire.endTransmission(true);
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
 void loop()
@@ -292,7 +301,6 @@ int EngelKontrol()
 }
 
 #pragma region Termistör
-
 double Termistor(int analogOkuma)
 {
 
@@ -301,5 +309,70 @@ double Termistor(int analogOkuma)
   sicaklik = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * sicaklik * sicaklik)) * sicaklik);
   sicaklik = sicaklik - 273.15;
   return sicaklik;
+}
+#pragma endregion
+
+#pragma region NeoPixel
+void NeoPixel()
+{
+  if (yanOptikler[0].MZ80_OKU() == 1)
+  {
+    for (int i = 0; i <= 36; i++)
+    {
+      leds[i] = CRGB::Blue;
+      FastLED.show();
+    }
+  }
+  else
+  {
+    for (int i = 0; i <= 36; i++)
+    {
+      leds[i] = CRGB::Red;
+      FastLED.show();
+      leds[0] = CRGB::Black;
+      FastLED.show();
+      delay(100);
+    }
+  }
+  //---------------------------------------------------------------------
+  if (yanOptikler[1].MZ80_OKU() == 1)
+  {
+    for (int i = 0; i <= 36; i++)
+    {
+      leds[i] = CRGB::Blue;
+      FastLED.show();
+    }
+  }
+  else
+  {
+    for (int i = 0; i <= 36; i++)
+    {
+      leds[i] = CRGB::Red;
+      FastLED.show();
+      leds[0] = CRGB::Black;
+      FastLED.show();
+      delay(100);
+    }
+    //--------------------------------------------------------------------
+    if (onOptikler[1].MZ80_OKU() == 1)
+    {
+      for (int i = 0; i <= 10; i++)
+      {
+        leds[i] = CRGB::Blue;
+        FastLED.show();
+      }
+    }
+    else
+    {
+      for (int i = 0; i <= 10; i++)
+      {
+        leds[i] = CRGB::Red;
+        FastLED.show();
+        leds[0] = CRGB::Black;
+        FastLED.show();
+        delay(100);
+      }
+    }
+  }
 }
 #pragma endregion
