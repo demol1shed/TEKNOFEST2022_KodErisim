@@ -27,6 +27,7 @@
 #define RPWM3 6
 #define LPWM3 9
 #pragma endregion
+
 #pragma region MZ80 Pinleri
 #define MZPIN 32
 #define MZPIN1 34
@@ -34,37 +35,35 @@
 #define MZPIN3 38
 #define MZPIN4 40
 #pragma endregion
-// gyro
+
 #pragma region Gyro
-const int MPU_addr = 0x68;
-int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
-int minVal = 265;
+const int MPU_addr = 0x68;                 // Sensörün Adresi
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değişkenler
+int minVal = 265;                          // Değerler
 int maxVal = 402;
-double x;
-double y;
-double z;
+double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 #pragma endregion
+
 #pragma region Qrkod
 // qrKod Değerleri
 SoftwareSerial mySerial(41, 42);
-char qrGelen = '0';
-int x = 0;
+char qrGelen = '0'; // Kaydedilcek Değiken Yeri
 int k = 0;
 char a[] = {"0000000"};
-char qrBeklenen1[15] = {'8', '6', '9', '1', '0', '5', '8', '1', '0', '0', '0', '1', '3'};
-char qrBeklenen2[15] = {"12345678"};
+char qrBeklenen1[15] = {'8', '6', '9', '1', '0', '5', '8', '1', '0', '0', '0', '1', '3'}; //İstenen qrKod Değeri 1
+char qrBeklenen2[15] = {"12345678"};                                                      //İstenen qrKod Değeri 2
 #pragma endregion
-// Motorların sabit durma değerleri
-const int sabitDeger[2] = {125, 129};
 
-// NeoPixel
-#pragma region Neopixel A
-#define NUM_LEDS 82
-#define DATA_PIN 4
-#define BRIGHTNES 128
-#define CHIPSET WS2812
-CRGB leds[NUM_LEDS];
+const int sabitDeger[2] = {125, 129}; // Motorların sabit durma değerleri
+
+#pragma region Neopixel
+#define NUM_LEDS 82    // Kullanılan Led Sayısı
+#define DATA_PIN 4     // Hangi Pine Bağlancağı
+#define BRIGHTNES 128  // Parlaklık Ayarı
+#define CHIPSET WS2812 // Ledin Modeli
+CRGB leds[NUM_LEDS];   // Kütüphane Fonksiyonu
 #pragma endregion
+
 #pragma region Optik Sensör Sayisi
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
@@ -114,9 +113,9 @@ BTS7960B motorlar[3]{
 
 void setup()
 {
-  Serial.begin(9600);
-  mySerial.begin(9600);
-  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS);
+  Serial.begin(9600);                                                             // Seri Haberleşme Başlar
+  mySerial.begin(9600);                                                           // Seri Kanal Açılır
+  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x6B);
@@ -141,6 +140,7 @@ void loop()
     motor2.CCLKWTURN(0);
   }
 #pragma region Term
+  // Ntc Sensörü Değerleri Okuyor Sicaklik Değişkenine Kaydediyor
   int deger = analogRead(A12);
   double sicaklik = Termistor(deger);
   Serial.println(sicaklik);
@@ -161,9 +161,10 @@ void loop()
   int xAng = map(AcX, minVal, maxVal, -90, 90);
   int yAng = map(AcY, minVal, maxVal, -90, 90);
   int zAng = map(AcZ, minVal, maxVal, -90, 90);
-  x = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
-  y = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
-  z = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
+  xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
+  yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
+  zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
+  // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
 #pragma endregion
 }
 
@@ -251,6 +252,7 @@ void KrikoHareket()
 
 int qrKodKontrol()
 {
+  // Qr Sensörü Okuyor Ve qrGelen Değişkine Kaydediyor
   if (mySerial.available())
   {
     qrGelen = mySerial.read();
@@ -316,6 +318,7 @@ double Termistor(int analogOkuma)
 #pragma region NeoPixel
 void NeoPixel()
 {
+  // Sağ Taraftaki Optik Engel Algılamadığında Mavi Işık Engel Algılandığında Kırmızı Işık Yanıp Sönüyor
   if (yanOptikler[0].MZ80_OKU() == 1)
   {
     for (int i = 0; i <= 36; i++)
@@ -336,6 +339,7 @@ void NeoPixel()
     }
   }
   //---------------------------------------------------------------------
+  // Sol Taraftaki Optik Engel Algılamadığında Mavi Işık Engel Algılandığında Kırmızı Işık Yanıp Sönüyor
   if (yanOptikler[1].MZ80_OKU() == 1)
   {
     for (int i = 0; i <= 36; i++)
@@ -355,6 +359,7 @@ void NeoPixel()
       delay(100);
     }
     //--------------------------------------------------------------------
+    // Ön Taraftaki Optik Engel Algılamadığında Mavi Işık Engel Algılandığında Kırmızı Işık Yanıp Sönüyor
     if (onOptikler[1].MZ80_OKU() == 1)
     {
       for (int i = 0; i <= 10; i++)
