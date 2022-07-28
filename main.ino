@@ -62,6 +62,7 @@ const int sabitDeger[2] = {125, 129};
 #define NUM_LEDS 82
 #define DATA_PIN 4
 #define BRIGHTNES 128
+#define CHIPSET WS2812
 CRGB leds[NUM_LEDS];
 #pragma endregion
 #pragma region Optik Sensör Sayisi
