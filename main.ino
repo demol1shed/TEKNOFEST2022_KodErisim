@@ -127,8 +127,9 @@ void setup()
 
 void loop()
 {
+  OtonomHareket();
   // Radyodan veriyi alır.
-  radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
+  /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
   // Engel gorulmedigi surece kontrole devam et, eger engel soz konusu ise dur.
   if (EngelKontrol() == 0)
@@ -140,7 +141,7 @@ void loop()
     Serial.println("engel var hocam");
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
-  }
+  }*/
 
   #pragma region GyroOku
   Wire.beginTransmission(MPU_addr);
@@ -371,15 +372,21 @@ void NeoPixel()
 #pragma endregion
 
 #pragma region Otonom Kontrol
-inline char PiVerisiOku(){
+inline const char* PiVerisiOku(){
   if(Serial.available() > 0){
     String data = Serial.readStringUntil('\n');
-    return data[0];
+    Serial.print("You sent me");
+    Serial.println(data);
+    const char* dataC = data.c_str();
+    Serial.print("data val: ");
+    Serial.println(dataC);
+    return dataC;
   }
 }
 
 void OtonomHareket(){
-  switch (PiVerisiOku())
+  const char* val = PiVerisiOku();
+  switch (val[0])
   {
   case 'N':
     /*motor.CCLKWTURN(50);
@@ -393,6 +400,14 @@ void OtonomHareket(){
     /*motor.CCLKWTURN(25);
     motor2.CCLKWTURN(75);*/
     Serial.println("Sola");
+  case 'X':
+    /*motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);*/
+    Serial.println("Cizgi gorunmuyor");
+  default:
+    /*motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);*/
+    Serial.println("Hatali");
   }
 }
 #pragma endregion
