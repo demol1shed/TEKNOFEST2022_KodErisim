@@ -112,7 +112,7 @@ void setup()
 {
   Serial.begin(9600);                                                             // Seri Haberleşme Başlar
   mySerial.begin(9600);                                                           // Seri Kanal Açılır
-  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
+  //radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
   
   #pragma region Gyro Setup
   Wire.begin();
@@ -372,20 +372,23 @@ void NeoPixel()
 #pragma endregion
 
 #pragma region Otonom Kontrol
-inline const char* PiVerisiOku(){
+const char* PiVerisiOku(){
   if(Serial.available() > 0){
+    Serial.println("Serial available");
     String data = Serial.readStringUntil('\n');
     Serial.print("You sent me");
     Serial.println(data);
     const char* dataC = data.c_str();
-    Serial.print("data val: ");
-    Serial.println(dataC);
     return dataC;
+  }else{
+    Serial.println("Serial not available");
+    return " ";
   }
 }
 
 void OtonomHareket(){
   const char* val = PiVerisiOku();
+  Serial.println("Data read");
   switch (val[0])
   {
   case 'N':
