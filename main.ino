@@ -27,21 +27,12 @@
 #define RPWM3 6
 #define LPWM3 9
 #pragma endregion
-
 #pragma region MZ80 Pinleri
 #define MZPIN 32
 #define MZPIN1 34
 #define MZPIN2 36
 #define MZPIN3 38
 #define MZPIN4 40
-#pragma endregion
-
-#pragma region Gyro
-const int MPU_addr = 0x68;                 // Sensörün Adresi
-int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değişkenler
-int minVal = 265;                          // Değerler
-int maxVal = 402;
-double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 #pragma endregion
 
 #pragma region Qrkod
@@ -54,21 +45,13 @@ char qrBeklenen1[15] = {'8', '6', '9', '1', '0', '5', '8', '1', '0', '0', '0', '
 char qrBeklenen2[15] = {"12345678"};                                                      //İstenen qrKod Değeri 2
 #pragma endregion
 
-const int sabitDeger[2] = {125, 129}; // Motorların sabit durma değerleri
-
-#pragma region Neopixel
-#define NUM_LEDS 82    // Kullanılan Led Sayısı
-#define DATA_PIN 4     // Hangi Pine Bağlancağı
-#define BRIGHTNES 128  // Parlaklık Ayarı
-#define CHIPSET WS2812 // Ledin Modeli
-CRGB leds[NUM_LEDS];   // Kütüphane Fonksiyonu
-#pragma endregion
-
 #pragma region Optik Sensör Sayisi
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
 const int alinanVeriSayisi = 4;
 #pragma endregion
+
+const int sabitDeger[2] = {125, 129}; // Motorların sabit durma değerleri
 bool switchDurumu;
 bool veriDurumu = true;
 int alinanVeri[alinanVeriSayisi];
@@ -111,16 +94,34 @@ BTS7960B motorlar[3]{
     motorKirko};
 #pragma endregion
 
+#pragma region Neopixel Degiskenler
+#define NUM_LEDS 82    // Kullanılan Led Sayısı
+#define DATA_PIN 4     // Hangi Pine Bağlancağı
+#define BRIGHTNES 128  // Parlaklık Ayarı
+#define CHIPSET WS2812 // Ledin Modeli
+CRGB leds[NUM_LEDS];   // Kütüphane Fonksiyonu
+#pragma endregion
+#pragma region Gyro Degiskenler
+const int MPU_addr = 0x68;                 // Sensörün Adresi
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değişkenler
+int minVal = 265;                          // Değerler
+int maxVal = 402;
+double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
+#pragma endregion
 void setup()
 {
   Serial.begin(9600);                                                             // Seri Haberleşme Başlar
   mySerial.begin(9600);                                                           // Seri Kanal Açılır
   radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
+  
+  #pragma region Gyro Setup
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x6B);
   Wire.write(0);
   Wire.endTransmission(true);
+  #pragma endregion
+  
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
@@ -129,6 +130,7 @@ void loop()
   // Radyodan veriyi alır.
   radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
+  // Engel gorulmedigi surece kontrole devam et, eger engel soz konusu ise dur.
   if (EngelKontrol() == 0)
   {
     Kontrol();
@@ -139,20 +141,8 @@ void loop()
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
   }
-#pragma region Term
-  // Ntc Sensörü Değerleri Okuyor Sicaklik Değişkenine Kaydediyor
-  int deger = analogRead(A12);
-  double sicaklik = Termistor(deger);
-  Serial.println(sicaklik);
-  if (sicaklik > 34)
-  {
-  }
-  else
-  {
-  }
-#pragma endregion
 
-#pragma region GyroOku
+  #pragma region GyroOku
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x3B);
   Wire.endTransmission(false);
@@ -165,9 +155,10 @@ void loop()
   yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
   zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
   // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
-#pragma endregion
+  #pragma endregion
 }
 
+#pragma region Kumanda Kontrol
 void Kontrol()
 {
   /*int x;
@@ -249,7 +240,9 @@ void KrikoHareket()
     motorlar[2].CLKWTURN(0);
   }
 }
+#pragma endregion
 
+#pragma region Qr Kod Fonksiyonlari
 int qrKodKontrol()
 {
   // Qr Sensörü Okuyor Ve qrGelen Değişkine Kaydediyor
@@ -292,7 +285,13 @@ void qrKodIndir()
     delay(5000);
   }
 }
+#pragma endregion 
 
+/**
+ * @brief MZ80 sensorlerin herbirini kontrol ederek gorulen engel sayisini return eder.
+ * 
+ * @return int 
+ */
 int EngelKontrol()
 {
   int x = 0;
@@ -302,18 +301,6 @@ int EngelKontrol()
   }
   return x;
 }
-
-#pragma region Termistör
-double Termistor(int analogOkuma)
-{
-
-  double sicaklik;
-  sicaklik = log(((10240000 / analogOkuma) - 10000));
-  sicaklik = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * sicaklik * sicaklik)) * sicaklik);
-  sicaklik = sicaklik - 273.15;
-  return sicaklik;
-}
-#pragma endregion
 
 #pragma region NeoPixel
 void NeoPixel()
@@ -379,6 +366,33 @@ void NeoPixel()
         delay(100);
       }
     }
+  }
+}
+#pragma endregion
+
+#pragma region Otonom Kontrol
+inline char PiVerisiOku(){
+  if(Serial.available() > 0){
+    String data = Serial.readStringUntil('\n');
+    return data[0];
+  }
+}
+
+void OtonomHareket(){
+  switch (PiVerisiOku())
+  {
+  case 'N':
+    /*motor.CCLKWTURN(50);
+    motor2.CCLKWTURN(50);*/
+    Serial.println("Ileri");
+  case 'R':
+    /*motor.CCLKWTURN(75);
+    motor2.CCLKWTURN(25);*/
+    Serial.println("Saga");
+  case 'L':
+    /*motor.CCLKWTURN(25);
+    motor2.CCLKWTURN(75);*/
+    Serial.println("Sola");
   }
 }
 #pragma endregion
