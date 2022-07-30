@@ -52,6 +52,17 @@ const int yanOptikSayisi = 2;
 const int alinanVeriSayisi = 4;
 #pragma endregion
 
+#pragma region şarj
+float vA = 0.0;
+float vB = 0.0;
+float vGiris = 0.0;
+float vOrtalama = 0.0;
+float RA = 99.2;
+float RB = 9.7;
+float RC = 9.8;
+float vToplam = 0.0;
+#pragma endregion
+
 const int sabitDeger[2] = {125, 129}; // Motorların sabit durma değerleri
 bool switchDurumu;
 bool veriDurumu = true;
@@ -131,6 +142,7 @@ void loop()
 {
   PiVerisiOku(veri);
   OtonomHareket(veri.c_str());
+  void Gyro();
   //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
@@ -145,21 +157,6 @@ void loop()
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
   }*/
-
-#pragma region GyroOku
-  Wire.beginTransmission(MPU_addr);
-  Wire.write(0x3B);
-  Wire.endTransmission(false);
-  Wire.requestFrom(MPU_addr, 14, true);
-  AcX = Wire.read() << 8 | Wire.read();
-  int xAng = map(AcX, minVal, maxVal, -90, 90);
-  int yAng = map(AcY, minVal, maxVal, -90, 90);
-  int zAng = map(AcZ, minVal, maxVal, -90, 90);
-  xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
-  yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
-  zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
-// Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
-#pragma endregion
 }
 
 #pragma region Kumanda Kontrol
@@ -244,9 +241,23 @@ void KrikoHareket()
     motorlar[2].CLKWTURN(0);
   }
 }
-#pragma endregion
 
-#pragma region Qr Kod Fonksiyonlari
+void Gyro()
+{
+  Wire.beginTransmission(MPU_addr);
+  Wire.write(0x3B);
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_addr, 14, true);
+  AcX = Wire.read() << 8 | Wire.read();
+  int xAng = map(AcX, minVal, maxVal, -90, 90);
+  int yAng = map(AcY, minVal, maxVal, -90, 90);
+  int zAng = map(AcZ, minVal, maxVal, -90, 90);
+  xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
+  yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
+  zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
+  // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
+}
+
 int qrKodKontrol()
 {
   // Qr Sensörü Okuyor Ve qrGelen Değişkine Kaydediyor
@@ -457,6 +468,25 @@ void NeoPixel()
       FastLED.show();
       delay(10);
     }
+  }
+}
+#pragma endregion
+
+#pragma region Şarj
+void Şarj()
+{
+  for (int i = 0; i < 30; i++)
+  {
+    float okunanA = analogRead(A12);
+    float okunanB = analogRead(A13);
+    vA = okunanA * 5 / 1024;
+    vB = okunanB * 5 / 1024;
+    vA = vA * ((RA + RB + RC) / 20);
+    vB = vB * ((RA + RB + RC) / 10);
+    vOrtalama = (vA + vB) / 2;
+    vToplam = vToplam + vOrtalama;
+    float v = vToplam / 30;
+    int yuzde = map(v, 22, 25, 0, 100);
   }
 }
 #pragma endregion
