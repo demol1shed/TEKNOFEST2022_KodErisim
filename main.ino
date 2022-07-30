@@ -72,8 +72,13 @@ MZ80 optik3(MZPIN3);
 MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
+<<<<<<< HEAD
 BTS7960B motor(RPWM, LPWM); 
 BTS7960B motor2(RPWM2, LPWM2);
+=======
+BTS7960B motor(RPWM, LPWM);    // sağ
+BTS7960B motor2(RPWM2, LPWM2); // sol
+>>>>>>> 94efc71548e7c6b4728fc9001e820c360677cb7c
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 #pragma region MZ80 Arrayleri
@@ -109,18 +114,26 @@ double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 #pragma endregion
 void setup()
 {
+<<<<<<< HEAD
   Serial.begin(9600);                                                             // Seri Haberleşme Başlar
   //radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
   mySerial.begin(9600);                                                           // Seri Kanal Açılır
   
   #pragma region Gyro Setup
+=======
+  Serial.begin(9600);   // Seri Haberleşme Başlar
+  mySerial.begin(9600); // Seri Kanal Açılır
+  // radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
+
+#pragma region Gyro Setup
+>>>>>>> 94efc71548e7c6b4728fc9001e820c360677cb7c
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x6B);
   Wire.write(0);
   Wire.endTransmission(true);
-  #pragma endregion
-  
+#pragma endregion
+
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
@@ -150,7 +163,7 @@ void loop()
     motor2.CCLKWTURN(0);
   }*/
 
-  #pragma region GyroOku
+#pragma region GyroOku
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x3B);
   Wire.endTransmission(false);
@@ -162,8 +175,8 @@ void loop()
   xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
   yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
   zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
-  // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
-  #pragma endregion
+// Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
+#pragma endregion
 }
 
 #pragma region Kumanda Kontrol
@@ -293,12 +306,12 @@ void qrKodIndir()
     delay(5000);
   }
 }
-#pragma endregion 
+#pragma endregion
 
 /**
  * @brief MZ80 sensorlerin herbirini kontrol ederek gorulen engel sayisini return eder.
- * 
- * @return int 
+ *
+ * @return int
  */
 int EngelKontrol()
 {
@@ -308,77 +321,41 @@ int EngelKontrol()
     x += onOptikler[i].MZ80_OKU();
   }
   return x;
+
+  if (x != 0)
+  {
+    while (xEkseni != 90) // 90'a eşit olana kadar yapıyor.
+    {
+      motor.CLKWTURN(31);
+      motor2.CCLKWTURN(100); // robot belirli bir hızda sağa dönüyor
+    }
+  }
+  if (yanOptikler[1].MZ80_OKU() == 1) // robotun sol tarafındaki optik engel algılamayı kesene kadar ileri gidyor
+  {
+    motor.CCLKWTURN(100);
+    motor2.CCLKWTURN(100);
+  }
+  if (yanOptikler[1].MZ80_OKU() == 0)
+  {
+    while (xEkseni != 0) // robot engel algılamadığı için sola dönüyor ve çizgiye giriyor
+    {
+      motor2.CLKWTURN(31);
+      motor.CCLKWTURN(100);
+    }
+    motor.CCLKWTURN(100);
+    motor2.CCLKWTURN(100);
+    delay(2000);
+  }
 }
 
 #pragma region NeoPixel
 void NeoPixel()
 {
-  // Sağ Taraftaki Optik Engel Algılamadığında Mavi Işık Engel Algılandığında Kırmızı Işık Yanıp Sönüyor
-  if (yanOptikler[0].MZ80_OKU() == 1)
-  {
-    for (int i = 0; i <= 36; i++)
-    {
-      leds[i] = CRGB::Blue;
-      FastLED.show();
-    }
-  }
-  else
-  {
-    for (int i = 0; i <= 36; i++)
-    {
-      leds[i] = CRGB::Red;
-      FastLED.show();
-      leds[0] = CRGB::Black;
-      FastLED.show();
-      delay(100);
-    }
-  }
-  //---------------------------------------------------------------------
-  // Sol Taraftaki Optik Engel Algılamadığında Mavi Işık Engel Algılandığında Kırmızı Işık Yanıp Sönüyor
-  if (yanOptikler[1].MZ80_OKU() == 1)
-  {
-    for (int i = 0; i <= 36; i++)
-    {
-      leds[i] = CRGB::Blue;
-      FastLED.show();
-    }
-  }
-  else
-  {
-    for (int i = 0; i <= 36; i++)
-    {
-      leds[i] = CRGB::Red;
-      FastLED.show();
-      leds[0] = CRGB::Black;
-      FastLED.show();
-      delay(100);
-    }
-    //--------------------------------------------------------------------
-    // Ön Taraftaki Optik Engel Algılamadığında Mavi Işık Engel Algılandığında Kırmızı Işık Yanıp Sönüyor
-    if (onOptikler[1].MZ80_OKU() == 1)
-    {
-      for (int i = 0; i <= 10; i++)
-      {
-        leds[i] = CRGB::Blue;
-        FastLED.show();
-      }
-    }
-    else
-    {
-      for (int i = 0; i <= 10; i++)
-      {
-        leds[i] = CRGB::Red;
-        FastLED.show();
-        leds[0] = CRGB::Black;
-        FastLED.show();
-        delay(100);
-      }
-    }
-  }
 }
 #pragma endregion
 
 #pragma region Otonom Kontrol
+<<<<<<< HEAD
 void PiVerisiOku(String& data){
   if(Serial.available() > 0){
     data = Serial.readStringUntil('\n');
@@ -395,6 +372,30 @@ void PiVerisiOku(String& data){
 void OtonomHareket(const char* val){
   Serial.print("Evaluating: ");
   Serial.println(val[0]);
+=======
+const char *PiVerisiOku()
+{
+  if (Serial.available() > 0)
+  {
+    Serial.println("Serial available");
+    String data = Serial.readStringUntil('\n');
+    Serial.print("You sent me");
+    Serial.println(data);
+    const char *dataC = data.c_str();
+    return dataC;
+  }
+  else
+  {
+    Serial.println("Serial not available");
+    return " ";
+  }
+}
+
+void OtonomHareket()
+{
+  const char *val = PiVerisiOku();
+  Serial.println("Data read");
+>>>>>>> 94efc71548e7c6b4728fc9001e820c360677cb7c
   switch (val[0])
   {
   case 'N':
