@@ -134,10 +134,10 @@ void loop()
     Serial.print("You sent anan: ");
     Serial.println(data);
   }*/
-  PiVerisiOku(veri);
-  OtonomHareket(veri.c_str());
-  // OtonomHareket(data.c_str());
-  //  Radyodan veriyi alır.
+  // PiVerisiOku(veri);
+  // OtonomHareket(veri.c_str());
+  //  OtonomHareket(data.c_str());
+  //   Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
   // Engel gorulmedigi surece kontrole devam et, eger engel soz konusu ise dur.
@@ -422,23 +422,23 @@ void NeoPixel()
     }
   }
 #pragma endregion
-
-#pragma region Otonom Kontrol
-  void PiVerisiOku(String & data)
-  {
-    if (Serial.available() > 0)
+  /*
+  #pragma region Otonom Kontrol
+    void PiVerisiOku(String & data)
     {
-      data = Serial.readStringUntil('\n');
-      Serial.print("You sent: ");
-      Serial.println(data);
+      if (Serial.available() > 0)
+      {
+        data = Serial.readStringUntil('\n');
+        Serial.print("You sent: ");
+        Serial.println(data);
+      }
     }
-  }
 
-  /**
-   * @todo switch hata veriyo
-   *
-   * @param val
-   */
+    /**
+     * @todo switch hata veriyo
+     *
+     * @param val
+     */
   void OtonomHareket(const char *val)
   {
     Serial.print("Evaluating: ");
@@ -468,4 +468,5 @@ void NeoPixel()
       Serial.println("Cizgi gorunmuyor");
     }
   }
+
 #pragma endregion
