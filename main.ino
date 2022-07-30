@@ -9,7 +9,6 @@
 #include <FastLED.h>
 // Özel kütüphaneler.
 #include <nRF24.h>
-
 #include <BTS7960B.h>
 #include <MZ80.h>
 #include <joystick.h>
@@ -73,7 +72,7 @@ MZ80 optik3(MZPIN3);
 MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
-BTS7960B motor(RPWM, LPWM);
+BTS7960B motor(RPWM, LPWM); 
 BTS7960B motor2(RPWM2, LPWM2);
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
@@ -111,8 +110,8 @@ double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 void setup()
 {
   Serial.begin(9600);                                                             // Seri Haberleşme Başlar
-  mySerial.begin(9600);                                                           // Seri Kanal Açılır
   //radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
+  mySerial.begin(9600);                                                           // Seri Kanal Açılır
   
   #pragma region Gyro Setup
   Wire.begin();
@@ -125,9 +124,17 @@ void setup()
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
+String veri;
 void loop()
 {
-  OtonomHareket();
+  /*if(Serial.available() > 0){
+    String data = Serial.readStringUntil('\n');
+    Serial.print("You sent anan: ");
+    Serial.println(data);
+  }*/
+  PiVerisiOku(veri);
+  OtonomHareket(veri.c_str());
+  //OtonomHareket(data.c_str());
   // Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
@@ -372,23 +379,22 @@ void NeoPixel()
 #pragma endregion
 
 #pragma region Otonom Kontrol
-const char* PiVerisiOku(){
+void PiVerisiOku(String& data){
   if(Serial.available() > 0){
-    Serial.println("Serial available");
-    String data = Serial.readStringUntil('\n');
-    Serial.print("You sent me");
+    data = Serial.readStringUntil('\n');
+    Serial.print("You sent: ");
     Serial.println(data);
-    const char* dataC = data.c_str();
-    return dataC;
-  }else{
-    Serial.println("Serial not available");
-    return " ";
   }
 }
 
-void OtonomHareket(){
-  const char* val = PiVerisiOku();
-  Serial.println("Data read");
+/**
+ * @todo switch hata veriyo
+ * 
+ * @param val 
+ */
+void OtonomHareket(const char* val){
+  Serial.print("Evaluating: ");
+  Serial.println(val[0]);
   switch (val[0])
   {
   case 'N':
