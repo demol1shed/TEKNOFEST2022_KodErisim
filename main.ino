@@ -40,9 +40,11 @@
 SoftwareSerial mySerial(41, 42);
 char qrGelen = '0'; // Kaydedilcek Değiken Yeri
 int k = 0;
-char a[] = {"0000000"};
-char qrBeklenen1[15] = {'8', '6', '9', '1', '0', '5', '8', '1', '0', '0', '0', '1', '3'}; //İstenen qrKod Değeri 1
-char qrBeklenen2[15] = {"12345678"};                                                      //İstenen qrKod Değeri 2
+char a[] = {"00"}; // char* a ile aynı deger
+char *qrBeklenenler[] = {"1;", "2;", "3;", "4;", "5;", "6;", "7;", "8;", "9;", "10", "11", "12", "13",
+                         "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
+                         "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+                         "40", "41", "42", "43", "45", "46", "47", "48", "49", "50", "51", "52"};
 #pragma endregion
 
 #pragma region Optik Sensör Sayisi
@@ -256,43 +258,27 @@ int qrKodKontrol()
   }
   else
   {
-    int n = memcmp(a, qrBeklenen1, sizeof(a));
-    if (n == 0)
+    for (int i = 0; i < sizeof(qrBeklenenler) / sizeof(qrBeklenenler[0]); i++)
     {
-      return 0;
-    }
-    n = memcmp(a, qrBeklenen2, sizeof(a));
-    if (n == 0)
-    {
-      return 1;
+      int n = memcmp(a, qrBeklenenler[i], sizeof(a));
+      if (n)
+      {
+        return i + 1;
+      }
     }
   }
 }
 
-void qrKodKaldir()
+void qrKarar(int gelenDeger)
 {
-  if (qrKodKontrol() == 0)
+  switch (gelenDeger)
   {
+  case 5:
     motorlar[2].CCLKWTURN(255);
     delay(5000);
   }
 }
 
-void qrKodIndir()
-{
-  if (qrKodKontrol() == 1)
-  {
-    motorlar[2].CLKWTURN(255);
-    delay(5000);
-  }
-}
-#pragma endregion
-
-/**
- * @brief MZ80 sensorlerin herbirini kontrol ederek gorulen engel sayisini return eder.
- *
- * @return int
- */
 int EngelKontrol()
 {
   int x = 0;
