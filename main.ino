@@ -40,7 +40,7 @@ SoftwareSerial mySerial(41, 42);
 char qrGelen = '0'; // Kaydedilcek Değiken Yeri
 int k = 0;
 char a[] = {"00"}; // char* a ile aynı deger
-char *qrBeklenenler[] = {"1;", "2;", "3;", "4;", "5;", "6;", "7;", "8;", "9;", "10", "11", "12", "13",
+const char *qrBeklenenler[] = {"1;", "2;", "3;", "4;", "5;", "6;", "7;", "8;", "9;", "10", "11", "12", "13",
                          "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
                          "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
                          "40", "41", "42", "43", "45", "46", "47", "48", "49", "50", "51", "52"};
@@ -74,13 +74,8 @@ MZ80 optik3(MZPIN3);
 MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
-<<<<<<< HEAD
 BTS7960B motor(RPWM, LPWM); 
 BTS7960B motor2(RPWM2, LPWM2);
-=======
-BTS7960B motor(RPWM, LPWM);    // sağ
-BTS7960B motor2(RPWM2, LPWM2); // sol
->>>>>>> 94efc71548e7c6b4728fc9001e820c360677cb7c
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 #pragma region MZ80 Arrayleri
@@ -116,19 +111,11 @@ double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 #pragma endregion
 void setup()
 {
-<<<<<<< HEAD
   Serial.begin(9600);                                                             // Seri Haberleşme Başlar
   //radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
   mySerial.begin(9600);                                                           // Seri Kanal Açılır
   
   #pragma region Gyro Setup
-=======
-  Serial.begin(9600);   // Seri Haberleşme Başlar
-  mySerial.begin(9600); // Seri Kanal Açılır
-  // radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
-
-#pragma region Gyro Setup
->>>>>>> 94efc71548e7c6b4728fc9001e820c360677cb7c
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x6B);
@@ -341,7 +328,6 @@ void NeoPixel()
 #pragma endregion
 
 #pragma region Otonom Kontrol
-<<<<<<< HEAD
 void PiVerisiOku(String& data){
   if(Serial.available() > 0){
     data = Serial.readStringUntil('\n');
@@ -358,52 +344,22 @@ void PiVerisiOku(String& data){
 void OtonomHareket(const char* val){
   Serial.print("Evaluating: ");
   Serial.println(val[0]);
-=======
-const char *PiVerisiOku()
-{
-  if (Serial.available() > 0)
-  {
-    Serial.println("Serial available");
-    String data = Serial.readStringUntil('\n');
-    Serial.print("You sent me");
-    Serial.println(data);
-    const char *dataC = data.c_str();
-    return dataC;
-  }
-  else
-  {
-    Serial.println("Serial not available");
-    return " ";
-  }
-}
-
-void OtonomHareket()
-{
-  const char *val = PiVerisiOku();
-  Serial.println("Data read");
->>>>>>> 94efc71548e7c6b4728fc9001e820c360677cb7c
-  switch (val[0])
-  {
-  case 'N':
+  if(val[0] == 'N'){
     /*motor.CCLKWTURN(50);
     motor2.CCLKWTURN(50);*/
     Serial.println("Ileri");
-  case 'R':
+  }else if(val[0] == 'R'){
     /*motor.CCLKWTURN(75);
     motor2.CCLKWTURN(25);*/
     Serial.println("Saga");
-  case 'L':
+  }else if(val[0] == 'L'){
     /*motor.CCLKWTURN(25);
     motor2.CCLKWTURN(75);*/
     Serial.println("Sola");
-  case 'X':
+  }else if(val[0] == 'X'){
     /*motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);*/
     Serial.println("Cizgi gorunmuyor");
-  default:
-    /*motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);*/
-    Serial.println("Hatali");
   }
 }
 #pragma endregion
