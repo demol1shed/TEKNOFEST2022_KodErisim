@@ -41,9 +41,9 @@ char qrGelen = '0'; // Kaydedilcek Değiken Yeri
 int k = 0;
 char a[] = {"00"}; // char* a ile aynı deger
 const char *qrBeklenenler[] = {"1;", "2;", "3;", "4;", "5;", "6;", "7;", "8;", "9;", "10", "11", "12", "13",
-                         "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
-                         "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
-                         "40", "41", "42", "43", "45", "46", "47", "48", "49", "50", "51", "52"};
+                               "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
+                               "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+                               "40", "41", "42", "43", "45", "46", "47", "48", "49", "50", "51", "52"};
 #pragma endregion
 
 #pragma region Optik Sensör Sayisi
@@ -74,7 +74,7 @@ MZ80 optik3(MZPIN3);
 MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
-BTS7960B motor(RPWM, LPWM); 
+BTS7960B motor(RPWM, LPWM);
 BTS7960B motor2(RPWM2, LPWM2);
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
@@ -111,11 +111,11 @@ double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 #pragma endregion
 void setup()
 {
-  Serial.begin(9600);                                                             // Seri Haberleşme Başlar
-  //radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
-  mySerial.begin(9600);                                                           // Seri Kanal Açılır
-  
-  #pragma region Gyro Setup
+  Serial.begin(9600); // Seri Haberleşme Başlar
+  // radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
+  mySerial.begin(9600); // Seri Kanal Açılır
+
+#pragma region Gyro Setup
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x6B);
@@ -136,8 +136,8 @@ void loop()
   }*/
   PiVerisiOku(veri);
   OtonomHareket(veri.c_str());
-  //OtonomHareket(data.c_str());
-  // Radyodan veriyi alır.
+  // OtonomHareket(data.c_str());
+  //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
   // Engel gorulmedigi surece kontrole devam et, eger engel soz konusu ise dur.
@@ -324,42 +324,148 @@ int EngelKontrol()
 #pragma region NeoPixel
 void NeoPixel()
 {
-}
+  if (onOptikler[0].MZ80_OKU() == 0 && onOptikler[1].MZ80_OKU() == 0 && onOptikler[2].MZ80_OKU() == 1)
+  {
+
+    for (int i = 35; i >= 0; i--)
+    {
+      leds[i] = CRGB(225, 70, 0);
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 0; i <= 35; i++)
+    {
+      leds[i] = CRGB::Black;
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 35; i >= 0; i--)
+    {
+      leds[i] = CRGB(225, 70, 0);
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 0; i <= 35; i++)
+    {
+      leds[i] = CRGB::Black;
+      FastLED.show();
+      delay(10);
+    }
+  }
+  else if (onOptikler[0].MZ80_OKU() == 1 && onOptikler[1].MZ80_OKU() == 0 && onOptikler[2].MZ80_OKU() == 0)
+  {
+
+    for (int i = 35; i >= 0; i--)
+    {
+      leds[81 - i] = CRGB(225, 70, 0);
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 0; i <= 35; i++)
+    {
+      leds[81 - i] = CRGB::Black;
+      FastLED.show();
+      delay(10);
+    }
+    for (int i = 35; i >= 0; i--)
+    {
+      leds[81 - i] = CRGB(225, 70, 0);
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 0; i <= 35; i++)
+    {
+      leds[81 - i] = CRGB::Black;
+      FastLED.show();
+      delay(10);
+    }
+  }
+
+  else if (onOptikler[0].MZ80_OKU() == 0 && onOptikler[1].MZ80_OKU() == 1 && onOptikler[2].MZ80_OKU() == 0)
+  {
+
+    for (int i = 35; i >= 0; i--)
+    {
+      leds[i] = CRGB(225, 70, 0);
+      leds[81 - i] = CRGB(225, 70, 0);
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 0; i <= 35; i++)
+    {
+      leds[i] = CRGB::Black;
+      leds[81 - i] = CRGB::Black;
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 35; i >= 0; i--)
+    {
+      leds[i] = CRGB(225, 70, 0);
+      leds[81 - i] = CRGB(225, 70, 0);
+      FastLED.show();
+      delay(10);
+    }
+
+    for (int i = 0; i <= 35; i++)
+    {
+      leds[i] = CRGB::Black;
+      leds[81 - i] = CRGB::Black;
+      FastLED.show();
+      delay(10);
+    }
+  }
 #pragma endregion
 
 #pragma region Otonom Kontrol
-void PiVerisiOku(String& data){
-  if(Serial.available() > 0){
-    data = Serial.readStringUntil('\n');
-    Serial.print("You sent: ");
-    Serial.println(data);
+  void PiVerisiOku(String & data)
+  {
+    if (Serial.available() > 0)
+    {
+      data = Serial.readStringUntil('\n');
+      Serial.print("You sent: ");
+      Serial.println(data);
+    }
   }
-}
 
-/**
- * @todo switch hata veriyo
- * 
- * @param val 
- */
-void OtonomHareket(const char* val){
-  Serial.print("Evaluating: ");
-  Serial.println(val[0]);
-  if(val[0] == 'N'){
-    /*motor.CCLKWTURN(50);
-    motor2.CCLKWTURN(50);*/
-    Serial.println("Ileri");
-  }else if(val[0] == 'R'){
-    /*motor.CCLKWTURN(75);
-    motor2.CCLKWTURN(25);*/
-    Serial.println("Saga");
-  }else if(val[0] == 'L'){
-    /*motor.CCLKWTURN(25);
-    motor2.CCLKWTURN(75);*/
-    Serial.println("Sola");
-  }else if(val[0] == 'X'){
-    /*motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);*/
-    Serial.println("Cizgi gorunmuyor");
+  /**
+   * @todo switch hata veriyo
+   *
+   * @param val
+   */
+  void OtonomHareket(const char *val)
+  {
+    Serial.print("Evaluating: ");
+    Serial.println(val[0]);
+    if (val[0] == 'N')
+    {
+      /*motor.CCLKWTURN(50);
+      motor2.CCLKWTURN(50);*/
+      Serial.println("Ileri");
+    }
+    else if (val[0] == 'R')
+    {
+      /*motor.CCLKWTURN(75);
+      motor2.CCLKWTURN(25);*/
+      Serial.println("Saga");
+    }
+    else if (val[0] == 'L')
+    {
+      /*motor.CCLKWTURN(25);
+      motor2.CCLKWTURN(75);*/
+      Serial.println("Sola");
+    }
+    else if (val[0] == 'X')
+    {
+      /*motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);*/
+      Serial.println("Cizgi gorunmuyor");
+    }
   }
-}
 #pragma endregion
