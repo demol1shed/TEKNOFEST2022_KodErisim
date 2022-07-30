@@ -52,7 +52,7 @@ const int yanOptikSayisi = 2;
 const int alinanVeriSayisi = 4;
 #pragma endregion
 
-#pragma region şarj
+#pragma region sarj
 float vA = 0.0;
 float vB = 0.0;
 float vGiris = 0.0;
@@ -107,7 +107,7 @@ BTS7960B motorlar[3]{
 #pragma endregion
 
 #pragma region Neopixel Degiskenler
-#define NUM_LEDS 82    // Kullanılan Led Sayısı
+#define NUM_LEDS 92    // Kullanılan Led Sayısı
 #define DATA_PIN 4     // Hangi Pine Bağlancağı
 #define BRIGHTNES 128  // Parlaklık Ayarı
 #define CHIPSET WS2812 // Ledin Modeli
@@ -120,6 +120,7 @@ int minVal = 265;                          // Değerler
 int maxVal = 402;
 double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 #pragma endregion
+
 void setup()
 {
   Serial.begin(9600); // Seri Haberleşme Başlar
@@ -140,9 +141,19 @@ void setup()
 String veri;
 void loop()
 {
-  PiVerisiOku(veri);
-  OtonomHareket(veri.c_str());
-  void Gyro();
+  if (EngelKontrol() == 0)
+  {
+    PiVerisiOku(veri);
+    OtonomHareket(veri.c_str());
+  }
+  else
+  {
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }
+
+  // void Gyro();
+
   //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
@@ -291,6 +302,11 @@ void qrKarar(int gelenDeger)
   }
 }
 
+/**
+ * @note x değerini 0a eşit yaptım DİKKAT
+ *
+ * @return int
+ */
 int EngelKontrol()
 {
   int x = 0;
@@ -300,7 +316,7 @@ int EngelKontrol()
   }
   return x;
 
-  if (x != 0)
+  if (x == 0)
   {
     while (xEkseni != 90) // 90'a eşit olana kadar yapıyor.
     {
@@ -366,6 +382,7 @@ void PiVerisiOku(String &data)
     Serial.print("You sent: ");
     Serial.println(data);
   }
+  delay(50);
 }
 #pragma endregion
 
@@ -468,12 +485,18 @@ void NeoPixel()
       FastLED.show();
       delay(10);
     }
+    for (int i = 83; i <= 92; i++)
+    {
+
+      leds[i] = CRGB::White;
+      FastLED.show();
+    }
   }
 }
 #pragma endregion
 
-#pragma region Şarj
-void Şarj()
+#pragma region Sarj
+void Sarj()
 {
   for (int i = 0; i < 30; i++)
   {
