@@ -131,7 +131,7 @@ void loop()
 {
   PiVerisiOku(veri);
   OtonomHareket(veri.c_str());
-  // Radyodan veriyi alır.
+  //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
   // Engel gorulmedigi surece kontrole devam et, eger engel soz konusu ise dur.
@@ -327,27 +327,23 @@ void OtonomHareket(const char *val)
   Serial.println(val[0]);
   if (val[0] == 'N')
   {
-    /*motor.CCLKWTURN(50);
-    motor2.CCLKWTURN(50);*/
-    Serial.println("Ileri");
+    motor.CCLKWTURN(20);
+    motor2.CCLKWTURN(20);
   }
   else if (val[0] == 'R')
   {
-    /*motor.CCLKWTURN(75);
-    motor2.CCLKWTURN(25);*/
-    Serial.println("Saga");
+    motor.CCLKWTURN(55);
+    motor2.CCLKWTURN(25);
   }
   else if (val[0] == 'L')
   {
-    /*motor.CCLKWTURN(25);
-    motor2.CCLKWTURN(75);*/
-    Serial.println("Sola");
+    motor.CCLKWTURN(25);
+    motor2.CCLKWTURN(55);
   }
   else if (val[0] == 'X')
   {
-    /*motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);*/
-    Serial.println("Cizgi gorunmuyor");
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
   }
 }
 
