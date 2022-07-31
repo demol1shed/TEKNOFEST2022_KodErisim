@@ -151,6 +151,7 @@ void loop()
   */
   PiVerisiOku(veri);
   OtonomHareket(veri);
+  EngelKontrol();
 
   // void Gyro();
 
@@ -320,17 +321,17 @@ int EngelKontrol()
 
   if (x == 0)
   {
-    if (onOptikler[1].MZ80_OKU() == 1)
+    if (onOptikler[1].MZ80_OKU() == 1) //Ön Orta Optik Engeli Gördüğü Sürece Sağa Dön
     {
       motor.CLKWTURN(25);
       motor2.CCLKWTURN(50);
     }
-    if (yanOptikler[1].MZ80_OKU() == 1)
+    if (yanOptikler[1].MZ80_OKU() == 1) // Yan Sol Optik Engeli Gördüğü Sürece Düz Git
     {
       motor.CCLKWTURN(50);
       motor2.CCLKWTURN(50);
     }
-    if (yanOptikler[1].MZ80_OKU() == 0)
+    if (yanOptikler[1].MZ80_OKU() == 0) // Engelin Hizasına Geldiğinde Yan Sol Optik Görüş Açısından Çıktığından Dolayı Belirli Bir Saniye robottun Ucunu Düzeltmek İçin Döncek
     {
       motor.CCLKWTURN(50);
       motor2.CLKWTURN(25);
