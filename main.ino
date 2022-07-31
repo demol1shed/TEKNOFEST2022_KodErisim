@@ -126,7 +126,7 @@ void setup()
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
-String veri;
+int veri = 0;
 void loop()
 {
   /*if(Serial.available() > 0){
@@ -135,7 +135,7 @@ void loop()
     Serial.println(data);
   }*/
   PiVerisiOku(veri);
-  OtonomHareket(veri.c_str());
+  OtonomHareket(veri);
   //OtonomHareket(data.c_str());
   // Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
@@ -328,11 +328,9 @@ void NeoPixel()
 #pragma endregion
 
 #pragma region Otonom Kontrol
-void PiVerisiOku(String& data){
+void PiVerisiOku(int& data){
   if(Serial.available() > 0){
-    data = Serial.readStringUntil('\n');
-    Serial.print("You sent: ");
-    Serial.println(data);
+    data = Serial.read() - '0';
   }
 }
 
@@ -341,25 +339,31 @@ void PiVerisiOku(String& data){
  * 
  * @param val 
  */
-void OtonomHareket(const char* val){
+void OtonomHareket(int val){
   Serial.print("Evaluating: ");
-  Serial.println(val[0]);
-  if(val[0] == 'N'){
-    /*motor.CCLKWTURN(50);
-    motor2.CCLKWTURN(50);*/
-    Serial.println("Ileri");
-  }else if(val[0] == 'R'){
-    /*motor.CCLKWTURN(75);
-    motor2.CCLKWTURN(25);*/
-    Serial.println("Saga");
-  }else if(val[0] == 'L'){
-    /*motor.CCLKWTURN(25);
-    motor2.CCLKWTURN(75);*/
-    Serial.println("Sola");
-  }else if(val[0] == 'X'){
-    /*motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);*/
-    Serial.println("Cizgi gorunmuyor");
+  Serial.println(val);
+  switch (val)
+  {
+  case 1:
+    motor.CCLKWTURN(25);
+    motor2.CCLKWTURN(25);
+    break;
+  case 2:
+    motor.CCLKWTURN(50);
+    motor2.CCLKWTURN(25);
+    break;
+  case 3:
+    motor.CCLKWTURN(25);
+    motor2.CCLKWTURN(50);
+    break;
+  case 0:
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+    break;
+  default:
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+    break;
   }
 }
 #pragma endregion
