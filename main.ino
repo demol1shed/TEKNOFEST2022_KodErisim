@@ -85,8 +85,8 @@ MZ80 optik3(MZPIN3);
 MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
-BTS7960B motor(RPWM, LPWM);
-BTS7960B motor2(RPWM2, LPWM2);
+BTS7960B motor(RPWM, LPWM);    // sağ
+BTS7960B motor2(RPWM2, LPWM2); // sol
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 #pragma region MZ80 Arrayleri
@@ -260,6 +260,8 @@ void Gyro()
   Wire.endTransmission(false);
   Wire.requestFrom(MPU_addr, 14, true);
   AcX = Wire.read() << 8 | Wire.read();
+  AcY = Wire.read() << 8 | Wire.read();
+  AcZ = Wire.read() << 8 | Wire.read();
   int xAng = map(AcX, minVal, maxVal, -90, 90);
   int yAng = map(AcY, minVal, maxVal, -90, 90);
   int zAng = map(AcZ, minVal, maxVal, -90, 90);
@@ -318,37 +320,32 @@ int EngelKontrol()
 
   if (x == 0)
   {
-    while (xEkseni != 90) // 90'a eşit olana kadar yapıyor.
+    if (onOptikler[1].MZ80_OKU() == 1)
     {
-      motor.CLKWTURN(31);
-      motor2.CCLKWTURN(100); // robot belirli bir hızda sağa dönüyor
+      motor.CLKWTURN(25);
+      motor2.CCLKWTURN(50);
     }
-  }
-  if (yanOptikler[1].MZ80_OKU() == 1) // robotun sol tarafındaki optik engel algılamayı kesene kadar ileri gidyor
-  {
-    motor.CCLKWTURN(100);
-    motor2.CCLKWTURN(100);
-  }
-  if (yanOptikler[1].MZ80_OKU() == 0)
-  {
-    while (xEkseni != 0) // robot engel algılamadığı için sola dönüyor ve çizgiye giriyor
+    if (yanOptikler[1].MZ80_OKU() == 1)
     {
-      motor2.CLKWTURN(31);
-      motor.CCLKWTURN(100);
+      motor.CCLKWTURN(50);
+      motor2.CCLKWTURN(50);
     }
-    motor.CCLKWTURN(100);
-    motor2.CCLKWTURN(100);
-    delay(2000);
+    if (yanOptikler[1].MZ80_OKU() == 0)
+    {
+      motor.CCLKWTURN(50);
+      motor2.CLKWTURN(25);
+      delay(500);
+    }
   }
 }
-
 #pragma region Otonom Hareket
 /**
  * @brief raspberry pi'dan gelen int degerine gore motorlarin hareketini saglar
  * @todo motorlarin karar sistemi bozuk, calistirir calistrmaz robot sola hareket etmeye basliyor.
  * @param val
  */
-void OtonomHareket(int val){
+void OtonomHareket(int val)
+{
   Serial.print("karar veriliyor: ");
   Serial.println(val);
   switch (val)
@@ -378,10 +375,11 @@ void OtonomHareket(int val){
 
 /**
  * @brief Raspberry pi'dan gelen verileri data degiskeninin adresine yazar, Serial.read'den gelen char veriyi integere donusturur.
- * 
- * @param data 
+ *
+ * @param data
  */
-void PiVerisiOku(int& data){
+void PiVerisiOku(int &data)
+{
   if (Serial.available() > 0)
   {
     data = Serial.read() - '0';
