@@ -107,7 +107,7 @@ BTS7960B motorlar[3]{
 #pragma endregion
 
 #pragma region Neopixel Degiskenler
-#define NUM_LEDS 92    // Kullanılan Led Sayısı
+#define NUM_LEDS 200   // Kullanılan Led Sayısı
 #define DATA_PIN 4     // Hangi Pine Bağlancağı
 #define BRIGHTNES 128  // Parlaklık Ayarı
 #define CHIPSET WS2812 // Ledin Modeli
@@ -149,8 +149,8 @@ void loop()
     bu main.ino dosyasinda switch case'te motorlara gonderilecek olan komutlar kullanilmiyor.
     Onun yerine robot kendi kendine ilerliyor ya da bazi durumlara sola gidiyor.
   */
-  PiVerisiOku(veri);
-  OtonomHareket(veri);
+
+  OtonomHareket();
   EngelKontrol();
 
   // void Gyro();
@@ -331,61 +331,51 @@ int EngelKontrol()
       motor.CCLKWTURN(50);
       motor2.CCLKWTURN(50);
     }
-    if (yanOptikler[1].MZ80_OKU() == 0) // Engelin Hizasına Geldiğinde Yan Sol Optik Görüş Açısından Çıktığından Dolayı Belirli Bir Saniye robottun Ucunu Düzeltmek İçin Döncek
-    {
-      motor.CCLKWTURN(50);
-      motor2.CLKWTURN(25);
-      delay(500);
-    }
+    /* if (yanOptikler[1].MZ80_OKU() == 0) // Engelin Hizasına Geldiğinde Yan Sol Optik Görüş Açısından Çıktığından Dolayı Belirli Bir Saniye robottun Ucunu Düzeltmek İçin Döncek
+     {
+       motor.CCLKWTURN(50);
+       motor2.CLKWTURN(25);
+       delay(500);
+     }*/
   }
 }
 #pragma region Otonom Hareket
-/**
- * @brief raspberry pi'dan gelen int degerine gore motorlarin hareketini saglar
- * @todo motorlarin karar sistemi bozuk, calistirir calistrmaz robot sola hareket etmeye basliyor.
- * @param val
- */
-void OtonomHareket(int val)
-{
-  Serial.print("karar veriliyor: ");
-  Serial.println(val);
-  switch (val)
-  {
-  case 1:
-    motor.CCLKWTURN(25);
-    motor2.CCLKWTURN(25);
-    break;
-  case 2:
-    motor.CCLKWTURN(50);
-    motor2.CCLKWTURN(25);
-    break;
-  case 3:
-    motor.CCLKWTURN(25);
-    motor2.CCLKWTURN(50);
-    break;
-  case 0:
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    break;
-  default:
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    break;
-  }
-}
-
-/**
- * @brief Raspberry pi'dan gelen verileri data degiskeninin adresine yazar, Serial.read'den gelen char veriyi integere donusturur.
- *
- * @param data
- */
-void PiVerisiOku(int &data)
+void OtonomHareket()
 {
   if (Serial.available() > 0)
   {
-    data = Serial.read() - '0';
+    String data = Serial.readStringUntil('\n');
+    Serial.print("You sent me: ");
+    Serial.println(data);
+    switch (data[0])
+    {
+    case 'N':
+      motor.CCLKWTURN(50);
+      motor2.CCLKWTURN(50);
+
+      break;
+    case 'R':
+      motor.CLKWTURN(175);
+      motor2.CCLKWTURN(175);
+
+      break;
+    case 'L':
+      motor.CCLKWTURN(175);
+      motor2.CLKWTURN(175);
+
+      break;
+    case 'X':
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+
+      break;
+    default:
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+
+      break;
+    }
   }
-  delay(50);
 }
 #pragma endregion
 
