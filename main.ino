@@ -119,6 +119,7 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değiş
 int minVal = 265;                          // Değerler
 int maxVal = 402;
 double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
+int yeniEksen;
 #pragma endregion
 
 void setup()
@@ -134,41 +135,35 @@ void setup()
   Wire.write(0);
   Wire.endTransmission(true);
 #pragma endregion
-
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
 int veri;
 void loop()
 {
-  /* Veri duzensiz sekilde geliyor, rastgele.
-    Arduinoda birden fazla serial kullanilmasindan dolayi olusabilecek bir sorun oldugunu dusunuyorum
-    Raspberry pi'da baslattigim program arduino'daki veriyi de yansitiyor
-    Arduino nadiren veriyi isliyor, sayisiz resetler sonrasinda isleyebiliyor.
-    Islemesi soz konusu oldugunda ise asd.py dosyasinda belirttigim if statement sorunu ile,
-    bu main.ino dosyasinda switch case'te motorlara gonderilecek olan komutlar kullanilmiyor.
-    Onun yerine robot kendi kendine ilerliyor ya da bazi durumlara sola gidiyor.
+  unsigned long x = micros();
+  /*switch (EngelKontrol())
+  {
+  case 0:
+    break;
+
+  case 3:
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  default:
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }
   */
-
   OtonomHareket();
-  EngelKontrol();
-
+  Serial.print(x - micros());
   // void Gyro();
 
   //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
   // Engel gorulmedigi surece kontrole devam et, eger engel soz konusu ise dur.
-  if (EngelKontrol() == 0)
-  {
-    Kontrol();
-  }
-  else
-  {
-    Serial.println("engel var hocam");
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-  }*/
+  // Kontrol();*/
 }
 
 #pragma region Kumanda Kontrol
@@ -253,6 +248,7 @@ void KrikoHareket()
     motorlar[2].CLKWTURN(0);
   }
 }
+#pragma endregion
 
 void Gyro()
 {
@@ -269,9 +265,11 @@ void Gyro()
   xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
   yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
   zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
+  yeniEksen = map(yEkseni, 0, 90, 0, 100);
   // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
 }
 
+#pragma region Qr Kod
 int qrKodKontrol()
 {
   // Qr Sensörü Okuyor Ve qrGelen Değişkine Kaydediyor
@@ -304,12 +302,9 @@ void qrKarar(int gelenDeger)
     delay(5000);
   }
 }
+#pragma endregion
 
-/**
- * @note x değerini 0a eşit yaptım DİKKAT
- *
- * @return int
- */
+#pragma region Otonom Hareket
 int EngelKontrol()
 {
   int x = 0;
@@ -318,28 +313,8 @@ int EngelKontrol()
     x += onOptikler[i].MZ80_OKU();
   }
   return x;
-
-  if (x == 0)
-  {
-    if (onOptikler[1].MZ80_OKU() == 1) //Ön Orta Optik Engeli Gördüğü Sürece Sağa Dön
-    {
-      motor.CLKWTURN(25);
-      motor2.CCLKWTURN(50);
-    }
-    if (yanOptikler[1].MZ80_OKU() == 1) // Yan Sol Optik Engeli Gördüğü Sürece Düz Git
-    {
-      motor.CCLKWTURN(50);
-      motor2.CCLKWTURN(50);
-    }
-    /* if (yanOptikler[1].MZ80_OKU() == 0) // Engelin Hizasına Geldiğinde Yan Sol Optik Görüş Açısından Çıktığından Dolayı Belirli Bir Saniye robottun Ucunu Düzeltmek İçin Döncek
-     {
-       motor.CCLKWTURN(50);
-       motor2.CLKWTURN(25);
-       delay(500);
-     }*/
-  }
 }
-#pragma region Otonom Hareket
+
 void OtonomHareket()
 {
   if (Serial.available() > 0)
