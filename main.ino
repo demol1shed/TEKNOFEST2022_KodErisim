@@ -34,18 +34,6 @@
 #define MZPIN4 40
 #pragma endregion
 
-#pragma region Qrkod
-// qrKod Değerleri
-SoftwareSerial mySerial(41, 42);
-char qrGelen = '0'; // Kaydedilcek Değiken Yeri
-int k = 0;
-char a[] = {"00"}; // char* a ile aynı deger
-const char *qrBeklenenler[] = {"1;", "2;", "3;", "4;", "5;", "6;", "7;", "8;", "9;", "10", "11", "12", "13",
-                               "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
-                               "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
-                               "40", "41", "42", "43", "45", "46", "47", "48", "49", "50", "51", "52"};
-#pragma endregion
-
 #pragma region Optik Sensör Sayisi
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
@@ -85,9 +73,12 @@ MZ80 optik3(MZPIN3);
 MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
-BTS7960B motor(RPWM, LPWM);
-BTS7960B motor2(RPWM2, LPWM2);
+BTS7960B motor(RPWM, LPWM);//sag
+BTS7960B motor2(RPWM2, LPWM2);//sol
 BTS7960B motorKirko(RPWM3, LPWM3);
+#pragma endregion
+#pragma region QrKod Constructoru
+SoftwareSerial mySerial(41, 42);
 #pragma endregion
 #pragma region MZ80 Arrayleri
 MZ80 onOptikler[onOptikSayisi] = {
@@ -152,6 +143,8 @@ void loop()
   PiVerisiOku(veri);
   OtonomHareket(veri);
 
+  qrKodKontrol();
+  qrKarar(qrOku());
   // void Gyro();
 
   //  Radyodan veriyi alır.
@@ -252,6 +245,7 @@ void KrikoHareket()
     motorlar[2].CLKWTURN(0);
   }
 }
+#pragma endregion
 
 void Gyro()
 {
@@ -269,7 +263,13 @@ void Gyro()
   // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
 }
 
-int qrKodKontrol()
+#pragma region Qrkod
+// qrKod Değerleri
+char qrGelen = '0'; // Kaydedilcek Değiken Yeri
+int k = 0;
+char a[] = {"00"}; // char* a ile aynı deger
+#pragma endregion
+void qrKodKontrol()
 {
   // Qr Sensörü Okuyor Ve qrGelen Değişkine Kaydediyor
   if (mySerial.available())
@@ -279,26 +279,44 @@ int qrKodKontrol()
     k++;
     // Serial.print(qrGelen);
   }
-  else
-  {
-    for (int i = 0; i < sizeof(qrBeklenenler) / sizeof(qrBeklenenler[0]); i++)
-    {
-      int n = memcmp(a, qrBeklenenler[i], sizeof(a));
-      if (n)
-      {
-        return i + 1;
+}
+
+int qrOku(){
+  if(a[2] == ';'){
+    Serial.print("; karakteri bulundu, returlenecek olan karakter: ");
+    Serial.println(a[1]);
+    return a[1] - '0';
+  }else{
+    Serial.println("; karakteri bulunamadi");
+    // butun arrayi ara
+    for(int i = 0; i < sizeof(a) / sizeof(a[0]); i++){
+      // elementte Q karakterini bul
+      if(a[i] == 'Q'){
+        Serial.println("Q karakteri bulundu");
+        // Q karakteri haricindeki butun elementleri basa sar 
+        for(int j = i; j < (sizeof(a) / sizeof(a[0])) - 1;  j++){
+          a[j] = a[j + 1];
+        }
+        i--;
       }
     }
+    int gonderilecek;
+    // a dizisini int'e donustur ve gonderilecek olan degiskene yaz
+    for(int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
+      gonderilecek = a[i] - '0';
+    
+    Serial.print("gonderiliyor: ");
+    Serial.println(gonderilecek);
+    return gonderilecek;
   }
 }
 
 void qrKarar(int gelenDeger)
-{
+{ 
   switch (gelenDeger)
   {
-  case 5:
-    motorlar[2].CCLKWTURN(255);
-    delay(5000);
+  case 0:
+    Serial.print("anan");
   }
 }
 
@@ -315,31 +333,6 @@ int EngelKontrol()
     x += onOptikler[i].MZ80_OKU();
   }
   return x;
-
-  if (x == 0)
-  {
-    while (xEkseni != 90) // 90'a eşit olana kadar yapıyor.
-    {
-      motor.CLKWTURN(31);
-      motor2.CCLKWTURN(100); // robot belirli bir hızda sağa dönüyor
-    }
-  }
-  if (yanOptikler[1].MZ80_OKU() == 1) // robotun sol tarafındaki optik engel algılamayı kesene kadar ileri gidyor
-  {
-    motor.CCLKWTURN(100);
-    motor2.CCLKWTURN(100);
-  }
-  if (yanOptikler[1].MZ80_OKU() == 0)
-  {
-    while (xEkseni != 0) // robot engel algılamadığı için sola dönüyor ve çizgiye giriyor
-    {
-      motor2.CLKWTURN(31);
-      motor.CCLKWTURN(100);
-    }
-    motor.CCLKWTURN(100);
-    motor2.CCLKWTURN(100);
-    delay(2000);
-  }
 }
 
 #pragma region Otonom Hareket
