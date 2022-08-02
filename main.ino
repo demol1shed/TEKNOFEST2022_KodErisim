@@ -134,6 +134,13 @@ int veri;
 char a[] = {"Q1;"}; // char* a ile aynı deger
 void loop()
 {
+    /**
+   * @todo nrf24 kurulumunu ilk olarak alici yap
+   * veriyi al
+   * nrf24'u tekrardan kur ama verici olarak
+   * veriyi gonder
+   * nrf24'u tekrar alici yap
+   */
   /* Veri duzensiz sekilde geliyor, rastgele.
     Arduinoda birden fazla serial kullanilmasindan dolayi olusabilecek bir sorun oldugunu dusunuyorum
     Raspberry pi'da baslattigim program arduino'daki veriyi de yansitiyor
@@ -157,9 +164,11 @@ void loop()
   case 3:
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
+    break;
   default:
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
+    break;
   }
 
   //  Gyro();
