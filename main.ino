@@ -73,8 +73,8 @@ MZ80 optik3(MZPIN3);
 MZ80 optik4(MZPIN4);
 #pragma endregion
 #pragma region Motor Constructorlari
-BTS7960B motor(RPWM, LPWM);//sag
-BTS7960B motor2(RPWM2, LPWM2);//sol
+BTS7960B motor(RPWM, LPWM);    // sag
+BTS7960B motor2(RPWM2, LPWM2); // sol
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 #pragma region QrKod Constructoru
@@ -281,20 +281,27 @@ void qrKodKontrol()
   }
 }
 
-int qrOku(){
-  if(a[2] == ';'){
+int qrOku()
+{
+  if (a[2] == ';')
+  {
     Serial.print("; karakteri bulundu, returlenecek olan karakter: ");
     Serial.println(a[1]);
     return a[1] - '0';
-  }else{
+  }
+  else
+  {
     Serial.println("; karakteri bulunamadi");
     // butun arrayi ara
-    for(int i = 0; i < sizeof(a) / sizeof(a[0]); i++){
+    for (int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
+    {
       // elementte Q karakterini bul
-      if(a[i] == 'Q'){
+      if (a[i] == 'Q')
+      {
         Serial.println("Q karakteri bulundu");
-        // Q karakteri haricindeki butun elementleri basa sar 
-        for(int j = i; j < (sizeof(a) / sizeof(a[0])) - 1;  j++){
+        // Q karakteri haricindeki butun elementleri basa sar
+        for (int j = i; j < (sizeof(a) / sizeof(a[0])) - 1; j++)
+        {
           a[j] = a[j + 1];
         }
         i--;
@@ -302,9 +309,9 @@ int qrOku(){
     }
     int gonderilecek;
     // a dizisini int'e donustur ve gonderilecek olan degiskene yaz
-    for(int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
+    for (int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
       gonderilecek = a[i] - '0';
-    
+
     Serial.print("gonderiliyor: ");
     Serial.println(gonderilecek);
     return gonderilecek;
@@ -312,7 +319,7 @@ int qrOku(){
 }
 
 void qrKarar(int gelenDeger)
-{ 
+{
   switch (gelenDeger)
   {
   case 0:
@@ -341,7 +348,8 @@ int EngelKontrol()
  * @todo motorlarin karar sistemi bozuk, calistirir calistrmaz robot sola hareket etmeye basliyor.
  * @param val
  */
-void OtonomHareket(int val){
+void OtonomHareket(int val)
+{
   Serial.print("karar veriliyor: ");
   Serial.println(val);
   switch (val)
@@ -371,10 +379,11 @@ void OtonomHareket(int val){
 
 /**
  * @brief Raspberry pi'dan gelen verileri data degiskeninin adresine yazar, Serial.read'den gelen char veriyi integere donusturur.
- * 
- * @param data 
+ *
+ * @param data
  */
-void PiVerisiOku(int& data){
+void PiVerisiOku(int &data)
+{
   if (Serial.available() > 0)
   {
     data = Serial.read() - '0';
@@ -386,109 +395,6 @@ void PiVerisiOku(int& data){
 #pragma region NeoPixel
 void NeoPixel()
 {
-  if (onOptikler[0].MZ80_OKU() == 0 && onOptikler[1].MZ80_OKU() == 0 && onOptikler[2].MZ80_OKU() == 1)
-  {
-
-    for (int i = 35; i >= 0; i--)
-    {
-      leds[i] = CRGB(225, 70, 0);
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 0; i <= 35; i++)
-    {
-      leds[i] = CRGB::Black;
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 35; i >= 0; i--)
-    {
-      leds[i] = CRGB(225, 70, 0);
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 0; i <= 35; i++)
-    {
-      leds[i] = CRGB::Black;
-      FastLED.show();
-      delay(10);
-    }
-  }
-  else if (onOptikler[0].MZ80_OKU() == 1 && onOptikler[1].MZ80_OKU() == 0 && onOptikler[2].MZ80_OKU() == 0)
-  {
-
-    for (int i = 35; i >= 0; i--)
-    {
-      leds[81 - i] = CRGB(225, 70, 0);
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 0; i <= 35; i++)
-    {
-      leds[81 - i] = CRGB::Black;
-      FastLED.show();
-      delay(10);
-    }
-    for (int i = 35; i >= 0; i--)
-    {
-      leds[81 - i] = CRGB(225, 70, 0);
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 0; i <= 35; i++)
-    {
-      leds[81 - i] = CRGB::Black;
-      FastLED.show();
-      delay(10);
-    }
-  }
-
-  else if (onOptikler[0].MZ80_OKU() == 0 && onOptikler[1].MZ80_OKU() == 1 && onOptikler[2].MZ80_OKU() == 0)
-  {
-
-    for (int i = 35; i >= 0; i--)
-    {
-      leds[i] = CRGB(225, 70, 0);
-      leds[81 - i] = CRGB(225, 70, 0);
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 0; i <= 35; i++)
-    {
-      leds[i] = CRGB::Black;
-      leds[81 - i] = CRGB::Black;
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 35; i >= 0; i--)
-    {
-      leds[i] = CRGB(225, 70, 0);
-      leds[81 - i] = CRGB(225, 70, 0);
-      FastLED.show();
-      delay(10);
-    }
-
-    for (int i = 0; i <= 35; i++)
-    {
-      leds[i] = CRGB::Black;
-      leds[81 - i] = CRGB::Black;
-      FastLED.show();
-      delay(10);
-    }
-    for (int i = 83; i <= 92; i++)
-    {
-
-      leds[i] = CRGB::White;
-      FastLED.show();
-    }
-  }
 }
 #pragma endregion
 
