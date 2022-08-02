@@ -78,7 +78,7 @@ BTS7960B motor2(RPWM2, LPWM2); // sol
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 #pragma region QrKod Constructoru
-SoftwareSerial mySerial(41, 42);
+SoftwareSerial mySerial(14, 15);
 #pragma endregion
 #pragma region MZ80 Arrayleri
 MZ80 onOptikler[onOptikSayisi] = {
@@ -110,6 +110,7 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değiş
 int minVal = 265;                          // Değerler
 int maxVal = 402;
 double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
+int buzzer = A9;
 #pragma endregion
 
 void setup()
@@ -140,12 +141,25 @@ void loop()
     bu main.ino dosyasinda switch case'te motorlara gonderilecek olan komutlar kullanilmiyor.
     Onun yerine robot kendi kendine ilerliyor ya da bazi durumlara sola gidiyor.
   */
-  PiVerisiOku(veri);
-  OtonomHareket(veri);
 
   qrKodKontrol();
   qrKarar(qrOku());
-  // void Gyro();
+
+  switch (EngelKontrol())
+  {
+  case 0:
+    PiVerisiOku(veri);
+    OtonomHareket(veri);
+    break;
+  case 3:
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  default:
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+  }
+
+  //  Gyro();
 
   //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
@@ -324,7 +338,10 @@ void qrKarar(int gelenDeger)
   {
   case 0:
     Serial.print("anan");
+  case 1:
+    // anan
   }
+  analogWrite(buzzer, 150);
 }
 
 /**
