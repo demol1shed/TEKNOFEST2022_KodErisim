@@ -78,7 +78,7 @@ BTS7960B motor2(RPWM2, LPWM2); // sol
 BTS7960B motorKirko(RPWM3, LPWM3);
 #pragma endregion
 #pragma region QrKod Constructoru
-SoftwareSerial mySerial(14, 15);
+SoftwareSerial mySerial(14, 15); // RX TX
 #pragma endregion
 #pragma region MZ80 Arrayleri
 MZ80 onOptikler[onOptikSayisi] = {
@@ -110,7 +110,7 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değiş
 int minVal = 265;                          // Değerler
 int maxVal = 402;
 double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
-int buzzer = A9;
+int buzzer = 22;
 #pragma endregion
 
 void setup()
@@ -131,6 +131,7 @@ void setup()
 }
 
 int veri;
+char a[] = {"Q1;"}; // char* a ile aynı deger
 void loop()
 {
   /* Veri duzensiz sekilde geliyor, rastgele.
@@ -143,7 +144,9 @@ void loop()
   */
 
   qrKodKontrol();
-  qrKarar(qrOku());
+  int deger = qrOku();
+  Serial.println(a);
+  qrKarar(deger);
 
   switch (EngelKontrol())
   {
@@ -279,9 +282,8 @@ void Gyro()
 
 #pragma region Qrkod
 // qrKod Değerleri
-char qrGelen = '0'; // Kaydedilcek Değiken Yeri
 int k = 0;
-char a[] = {"00"}; // char* a ile aynı deger
+char qrGelen = '0'; // Kaydedilcek Değiken Yeri
 #pragma endregion
 void qrKodKontrol()
 {
@@ -305,27 +307,7 @@ int qrOku()
   }
   else
   {
-    Serial.println("; karakteri bulunamadi");
-    // butun arrayi ara
-    for (int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
-    {
-      // elementte Q karakterini bul
-      if (a[i] == 'Q')
-      {
-        Serial.println("Q karakteri bulundu");
-        // Q karakteri haricindeki butun elementleri basa sar
-        for (int j = i; j < (sizeof(a) / sizeof(a[0])) - 1; j++)
-        {
-          a[j] = a[j + 1];
-        }
-        i--;
-      }
-    }
-    int gonderilecek;
-    // a dizisini int'e donustur ve gonderilecek olan degiskene yaz
-    for (int i = 0; i < sizeof(a) / sizeof(a[0]); i++)
-      gonderilecek = a[i] - '0';
-
+    int gonderilecek = (a[1] - '0') * 10 + (a[2] - '0');
     Serial.print("gonderiliyor: ");
     Serial.println(gonderilecek);
     return gonderilecek;
@@ -338,10 +320,14 @@ void qrKarar(int gelenDeger)
   {
   case 0:
     Serial.print("anan");
+    break;
   case 1:
-    // anan
+    motorKirko.CCLKWTURN(100);
+    delay(100);
+    break;
   }
-  analogWrite(buzzer, 150);
+  // analogWrite(buzzer, 150);
+  // delay(500);
 }
 
 /**
