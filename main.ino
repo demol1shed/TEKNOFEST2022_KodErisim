@@ -32,6 +32,7 @@
 #define MZPIN2 36
 #define MZPIN3 38
 #define MZPIN4 40
+#define Röle 42
 #pragma endregion
 
 #pragma region Optik Sensör Sayisi
@@ -109,7 +110,7 @@ const int MPU_addr = 0x68;                 // Sensörün Adresi
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değişkenler
 int minVal = 265;                          // Değerler
 int maxVal = 402;
-double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
+double xEkseni, yEkseni, zEkseni, Egim; // Değerlerin Kaydedildiği Değişkenler
 int buzzer = 22;
 #pragma endregion
 
@@ -118,7 +119,8 @@ void setup()
   Serial.begin(9600); // Seri Haberleşme Başlar
   // radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
   mySerial.begin(9600); // Seri Kanal Açılır
-
+  pinMode(buzzer, OUTPUT);
+  pinMode(Röle, OUTPUT);
 #pragma region Gyro Setup
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
@@ -134,7 +136,7 @@ int veri;
 char a[] = {"Q1;"}; // char* a ile aynı deger
 void loop()
 {
-    /**
+  /**
    * @todo nrf24 kurulumunu ilk olarak alici yap
    * veriyi al
    * nrf24'u tekrardan kur ama verici olarak
@@ -150,18 +152,36 @@ void loop()
     Onun yerine robot kendi kendine ilerliyor ya da bazi durumlara sola gidiyor.
   */
 
-  qrKodKontrol();
-  int deger = qrOku();
-  Serial.println(a);
-  qrKarar(deger);
-
+  // qrKodKontrol();
+  // int deger = qrOku();
+  // Serial.println(a);
+  // qrKarar(deger);
+  //
   switch (EngelKontrol())
   {
   case 0:
     PiVerisiOku(veri);
     OtonomHareket(veri);
     break;
+  case 1:
+    digitalWrite(buzzer, 1);
+    if (onOptikler[0].MZ80_OKU() == 1)
+    {
+      digitalWrite(buzzer, 1);
+      // saga kac
+    }
+    else if (onOptikler[1].MZ80_OKU())
+    {
+      digitalWrite(buzzer, 1);
+      // dur
+    }
+    else
+    {
+      digitalWrite(buzzer, 1);
+      // sola kac
+    }
   case 3:
+    digitalWrite(buzzer, 1);
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
     break;
@@ -286,13 +306,13 @@ void Gyro()
   xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
   yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
   zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
+  Egim = map(zEkseni, 0, 90, 0, 100);
   // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
 }
 
 #pragma region Qrkod
-// qrKod Değerleri
 int k = 0;
-char qrGelen = '0'; // Kaydedilcek Değiken Yeri
+char qrGelen = '0';
 #pragma endregion
 void qrKodKontrol()
 {
@@ -302,7 +322,7 @@ void qrKodKontrol()
     qrGelen = mySerial.read();
     a[k] = qrGelen;
     k++;
-    // Serial.print(qrGelen);
+    Serial.print(qrGelen);
   }
 }
 
