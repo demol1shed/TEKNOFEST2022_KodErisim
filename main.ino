@@ -149,7 +149,7 @@ void loop()
     qrKodKontrol();
     int deger = qrOku();
     qrKarar(deger);
-
+//--------------------------------------------------------
     switch (EngelKontrol())
     {
     case 0:
@@ -198,15 +198,17 @@ void loop()
       break;
     }
   */
-  Gyro();
-  Serial.println(zEkseni);
-  if (Sarj() <= 12)
-  {
-    ustsagrenk = CRGB::OrangeRed;
-    ust_sag();
-  }
-
+  // Gyro();
+  // Serial.println(zEkseni);
+  /*
+    if (Sarj() <= 23.71)
+    {
+      ustsagrenk = CRGB::OrangeRed;
+      ust_sag();
+    }
+  */
   //  Radyodan veriyi alır.
+  Sarj();
   radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
   Kontrol();
@@ -502,11 +504,10 @@ void OtonomHareket()
 #pragma region Sarj
 int Sarj()
 {
-  int yuzde = 0;
   for (int i = 0; i < 30; i++)
   {
-    float okunanA = analogRead(A12);
-    float okunanB = analogRead(A13);
+    float okunanA = analogRead(A0);
+    float okunanB = analogRead(A2);
     vA = okunanA * 5 / 1024;
     vB = okunanB * 5 / 1024;
     vA = vA * ((RA + RB + RC) / 20);
@@ -514,9 +515,9 @@ int Sarj()
     vOrtalama = (vA + vB) / 2;
     vToplam = vToplam + vOrtalama;
     float v = vToplam / 30;
-    yuzde = map(v, 23.5, 25, 0, 100); // yüzde olarak veriyor
+    int yuzde = map(v, 23.5, 25, 0, 100); // yüzde olarak veriyor
+    Serial.println(yuzde);
   }
-  return yuzde;
 }
 #pragma endregion
 
