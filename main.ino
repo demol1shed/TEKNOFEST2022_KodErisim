@@ -130,7 +130,6 @@ void setup()
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
 }
 
-int veri;
 char a[] = {"Q1;"}; // char* a ile aynı deger
 void loop()
 {
@@ -152,14 +151,12 @@ void loop()
 
   qrKodKontrol();
   int deger = qrOku();
-  Serial.println(a);
   qrKarar(deger);
 
   switch (EngelKontrol())
   {
   case 0:
-    PiVerisiOku(veri);
-    OtonomHareket(veri);
+    OtonomHareket();
     break;
   case 3:
     motor.CCLKWTURN(0);
@@ -176,17 +173,7 @@ void loop()
   //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
-  // Engel gorulmedigi surece kontrole devam et, eger engel soz konusu ise dur.
-  if (EngelKontrol() == 0)
-  {
-    Kontrol();
-  }
-  else
-  {
-    Serial.println("engel var hocam");
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-  }*/
+  // Kontrol();
 }
 
 #pragma region Kumanda Kontrol
@@ -206,12 +193,10 @@ void Kontrol()
   SabitKal();
   if (!switchDurumu)
   {
-    // Serial.println("Hareket modu");
     Hareket();
   }
   else
   {
-    // Serial.println("Kriko modu");
     KrikoHareket();
   }
   // Veri yoksa...
@@ -242,12 +227,12 @@ void Hareket()
   {
     if (alinanVeri[i] > sabitDeger[i])
     {
-      // Serial.print("motor " + i); Serial.println(" ileri");
+      // ileri
       motorlar[i].CCLKWTURN(map(alinanVeri[i], sabitDeger[i], 255, 0, 255));
     }
     else if (alinanVeri[i] < sabitDeger[i])
     {
-      // Serial.print("motor" + i); Serial.println(" geri");
+      //geri
       motorlar[i].CLKWTURN(map(alinanVeri[i], 0, sabitDeger[i], -255, 0) * -1);
     }
   }
@@ -257,12 +242,12 @@ void KrikoHareket()
 {
   if (alinanVeri[1] > sabitDeger[1])
   {
-    // Serial.print("motor " + 2); Serial.println(" yukari");
+    // yukari
     motorlar[2].CCLKWTURN(map(alinanVeri[1], sabitDeger[1], 255, 0, 255));
   }
   else if (alinanVeri[1] < sabitDeger[1])
   {
-    // Serial.print("motor " + 2); Serial.println(" asagi");
+    // asagi
     motorlar[2].CLKWTURN(map(alinanVeri[1], 0, sabitDeger[1], -255, 0) * -1);
   }
   else if (alinanVeri[1] == sabitDeger[1])
@@ -292,7 +277,7 @@ void Gyro()
 #pragma region Qrkod
 // qrKod Değerleri
 int k = 0;
-char qrGelen = '0'; // Kaydedilcek Değiken Yeri
+char qrGelen = '0'; // Kaydedilcek Değisken Yeri
 #pragma endregion
 void qrKodKontrol()
 {
@@ -302,7 +287,6 @@ void qrKodKontrol()
     qrGelen = mySerial.read();
     a[k] = qrGelen;
     k++;
-    // Serial.print(qrGelen);
   }
 }
 
@@ -310,15 +294,13 @@ int qrOku()
 {
   if (a[2] == ';')
   {
-    Serial.print("; karakteri bulundu, returlenecek olan karakter: ");
-    Serial.println(a[1]);
+    // ; karakteri bulundu
     return a[1] - '0';
   }
   else
   {
     int gonderilecek = (a[1] - '0') * 10 + (a[2] - '0');
-    Serial.print("gonderiliyor: ");
-    Serial.println(gonderilecek);
+    // ; karakteri bulunamadi
     return gonderilecek;
   }
 }
@@ -328,7 +310,6 @@ void qrKarar(int gelenDeger)
   switch (gelenDeger)
   {
   case 0:
-    Serial.print("anan");
     break;
   case 1:
     motorKirko.CCLKWTURN(100);
@@ -340,6 +321,7 @@ void qrKarar(int gelenDeger)
 }
 
 /**
+ * @brief MZ80leri tarar, degerlerini kaydeder.
  * @note x değerini 0a eşit yaptım DİKKAT
  *
  * @return int
@@ -360,47 +342,34 @@ int EngelKontrol()
  * @todo motorlarin karar sistemi bozuk, calistirir calistrmaz robot sola hareket etmeye basliyor.
  * @param val
  */
-void OtonomHareket(int val)
-{
-  Serial.print("karar veriliyor: ");
-  Serial.println(val);
-  switch (val)
-  {
-  case 1:
-    motor.CCLKWTURN(25);
-    motor2.CCLKWTURN(25);
-    break;
-  case 2:
-    motor.CCLKWTURN(50);
-    motor2.CCLKWTURN(25);
-    break;
-  case 3:
-    motor.CCLKWTURN(25);
-    motor2.CCLKWTURN(50);
-    break;
-  case 0:
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    break;
-  default:
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    break;
-  }
-}
-
-/**
- * @brief Raspberry pi'dan gelen verileri data degiskeninin adresine yazar, Serial.read'den gelen char veriyi integere donusturur.
- *
- * @param data
- */
-void PiVerisiOku(int &data)
-{
+void OtonomHareket(){
   if (Serial.available() > 0)
   {
-    data = Serial.read() - '0';
+    String data = Serial.readStringUntil('\n');
+    switch (data[0])
+    {
+      case 'N':
+        motor.CCLKWTURN(25);
+        motor2.CCLKWTURN(25);
+        break;
+      case 'R':
+        motor.CCLKWTURN(50);
+        motor2.CCLKWTURN(25);
+        break;
+      case 'L':
+        motor.CCLKWTURN(25);
+        motor2.CCLKWTURN(50);
+        break;
+      case 'X':
+        motor.CCLKWTURN(0);
+        motor2.CCLKWTURN(0);
+        break;
+      default:
+        motor.CCLKWTURN(0);
+        motor2.CCLKWTURN(0);
+        break;
+    }
   }
-  delay(50);
 }
 #pragma endregion
 
