@@ -343,110 +343,108 @@ int qrOku()
     return gonderilecek;
   }
 }
-#pragma region Senaryo 1
+#pragma region YuksuzSenaryo 1
 void qrKarar(int gelenDeger)
 {
   switch (gelenDeger)
   {
   case 1:
-
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
+    motor.CCLKWTURN(172);
+    motor2.CLKWTURN(50);
+    delay(500);
     break;
-  case 2:
 
-    break;
   case 3:
-
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
     break;
 
-  case 4:
-
-    break;
   case 5:
-
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
     break;
-  case 6:
 
-    break;
-  case 7:
-
-    break;
   case 8:
-
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
     break;
-  case 9:
 
-    break;
   case 10:
-
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
     break;
-  case 11:
 
-    break;
   case 12:
-
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
     break;
-  case 13:
 
-    break;
   case 14:
-
-    break;
-  case 15:
-
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
+    motor.CCLKWTURN(172);
+    motor2.CLKWTURN(50);
+    delay(500);
     break;
 
   case 16:
-
-    break;
-  case 17:
-
-    break;
-  case 18:
-
-    break;
-  case 19:
-
-    break;
-  case 20:
-
-    break;
-  case 21:
-
-    break;
-  case 22:
-    motor.CCLKWTURN(175);
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
+    motor.CCLKWTURN(172);
     motor2.CLKWTURN(50);
+    delay(500);
+    break;
+
+  case 18:
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
+    break;
+
+  case 20:
+    motor.CCLKWTURN(50);
+    motor.CCLKWTURN(50);
+    delay(1000);
+    break;
+
+  case 22:
+    motor.CCLKWTURN(50);
+    motor2.CLKWTURN(175);
     break;
   case 23:
     motor.CCLKWTURN(50);
     motor2.CCLKWTURN(50);
     break;
-  case 24:
 
-    break;
   case 25:
-
+    motor.CCLKWTURN(50);
+    motor2.CCLKWTURN(50);
+    delay(1000);
     break;
-  case 26:
 
-    break;
   case 27:
-
+    motor.CCLKWTURN(50);
+    motor2.CCLKWTURN(50);
+    delay(1000);
     break;
-  case 28:
 
-    break;
   case 29:
-
-    break;
-  case 30:
-
-    break;
-  case 31:
-
-    break;
-  case 32:
-
+    motor.CCLKWTURN(50);
+    motor2.CCLKWTURN(50);
+    delay(1000);
+    motor.CCLKWTURN(172);
+    motor2.CLKWTURN(50);
+    delay(500);
     break;
   }
 }
