@@ -26,15 +26,18 @@
 #define RPWM3 6
 #define LPWM3 9
 #pragma endregion
+
 #pragma region MZ80 Pinleri
-#define MZPIN 32
-#define MZPIN1 34
-#define MZPIN2 36
-#define MZPIN3 38
-#define MZPIN4 40
+#define sol_on_optik 32
+#define orta_optik 34
+#define sag_on_optik 36
+#define sag_optik 38
+#define sol_optik 40
 #pragma endregion
 
-#pragma region Optik Sensör Sayisi
+#define Röle 42
+
+#pragma region Optik
 const int onOptikSayisi = 3;
 const int yanOptikSayisi = 2;
 const int alinanVeriSayisi = 4;
@@ -62,15 +65,15 @@ nRF24 radyoModulu;
 #pragma endregion
 #pragma region MZ80 Constructorlari
 // sağ optik
-MZ80 optik(MZPIN);
+MZ80 sagOptik(sag_optik);
 // sol optik
-MZ80 optik1(MZPIN1);
+MZ80 solOptik(sol_optik);
 // ön sağ optik
-MZ80 optik2(MZPIN2);
+MZ80 sagOnOptik(sag_on_optik);
 // ön orta optik
-MZ80 optik3(MZPIN3);
+MZ80 ortaOptik(orta_optik);
 // ön sol optik
-MZ80 optik4(MZPIN4);
+MZ80 solOnOptik(sol_on_optik);
 #pragma endregion
 #pragma region Motor Constructorlari
 BTS7960B motor(RPWM, LPWM);    // sag
@@ -82,12 +85,12 @@ SoftwareSerial mySerial(14, 15); // RX TX
 #pragma endregion
 #pragma region MZ80 Arrayleri
 MZ80 onOptikler[onOptikSayisi] = {
-    optik,
-    optik1,
-    optik2};
+    sagOnOptik,
+    solOnOptik,
+    ortaOptik};
 MZ80 yanOptikler[yanOptikSayisi] = {
-    optik,
-    optik1,
+    sagOptik,
+    solOptik,
 };
 #pragma endregion
 #pragma region Motor Arrayleri
@@ -98,18 +101,27 @@ BTS7960B motorlar[3]{
 #pragma endregion
 
 #pragma region Neopixel Degiskenler
-#define NUM_LEDS 92    // Kullanılan Led Sayısı
+#define NUM_LEDS 200   // Kullanılan Led Sayısı
 #define DATA_PIN 4     // Hangi Pine Bağlancağı
 #define BRIGHTNES 128  // Parlaklık Ayarı
 #define CHIPSET WS2812 // Ledin Modeli
 CRGB leds[NUM_LEDS];   // Kütüphane Fonksiyonu
+int sagrenk = CRGB::Black;
+int arkarenk = CRGB::Black;
+int solrenk = CRGB::Black;
+int onrenk = CRGB::Black;
+int ustsagrenk = CRGB::Black;
+int ustonrenk = CRGB::Black;
+int ustsolrenk = CRGB::Black;
+int ustarkarenk = CRGB::Black;
+
 #pragma endregion
 #pragma region Gyro Degiskenler
 const int MPU_addr = 0x68;                 // Sensörün Adresi
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değişkenler
 int minVal = 265;                          // Değerler
 int maxVal = 402;
-double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
+double xEkseni, yEkseni, zEkseni, Egim; // Değerlerin Kaydedildiği Değişkenler
 int buzzer = 22;
 #pragma endregion
 
@@ -118,7 +130,7 @@ void setup()
   Serial.begin(9600); // Seri Haberleşme Başlar
   // radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
   mySerial.begin(9600); // Seri Kanal Açılır
-
+  pinMode(buzzer, OUTPUT);
 #pragma region Gyro Setup
   Wire.begin();
   Wire.beginTransmission(MPU_addr);
@@ -133,21 +145,6 @@ void setup()
 char a[] = {"Q1;"}; // char* a ile aynı deger
 void loop()
 {
-    /**
-   * @todo nrf24 kurulumunu ilk olarak alici yap
-   * veriyi al
-   * nrf24'u tekrardan kur ama verici olarak
-   * veriyi gonder
-   * nrf24'u tekrar alici yap
-   */
-  /* Veri duzensiz sekilde geliyor, rastgele.
-    Arduinoda birden fazla serial kullanilmasindan dolayi olusabilecek bir sorun oldugunu dusunuyorum
-    Raspberry pi'da baslattigim program arduino'daki veriyi de yansitiyor
-    Arduino nadiren veriyi isliyor, sayisiz resetler sonrasinda isleyebiliyor.
-    Islemesi soz konusu oldugunda ise asd.py dosyasinda belirttigim if statement sorunu ile,
-    bu main.ino dosyasinda switch case'te motorlara gonderilecek olan komutlar kullanilmiyor.
-    Onun yerine robot kendi kendine ilerliyor ya da bazi durumlara sola gidiyor.
-  */
 
   qrKodKontrol();
   int deger = qrOku();
@@ -158,9 +155,35 @@ void loop()
   case 0:
     OtonomHareket();
     break;
-  case 3:
+  case 1:
+    digitalWrite(buzzer, 1);
+    sagrenk = CRGB ::Red;
+    Ust_on();
+    sagrenk = CRGB ::Red;
+    On_led();
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
+    delay(15000);
+    break;
+  case 2:
+    digitalWrite(buzzer, 1);
+    sagrenk = CRGB ::Red;
+    Ust_on();
+    sagrenk = CRGB ::Red;
+    On_led();
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+    delay(15000);
+    break;
+  case 3:
+    digitalWrite(buzzer, 1);
+    sagrenk = CRGB ::Red;
+    Ust_on();
+    sagrenk = CRGB ::Red;
+    On_led();
+    motor.CCLKWTURN(0);
+    motor2.CCLKWTURN(0);
+    delay(1500);
     break;
   default:
     motor.CCLKWTURN(0);
@@ -168,7 +191,7 @@ void loop()
     break;
   }
 
-  //  Gyro();
+  Gyro();
 
   //  Radyodan veriyi alır.
   /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
@@ -271,11 +294,11 @@ void Gyro()
   xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
   yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
   zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
+  Egim = map(zEkseni, 0, 90, 0, 100);
   // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
 }
 
 #pragma region Qrkod
-// qrKod Değerleri
 int k = 0;
 char qrGelen = '0'; // Kaydedilcek Değisken Yeri
 #pragma endregion
@@ -304,20 +327,111 @@ int qrOku()
     return gonderilecek;
   }
 }
-
+#pragma region Seneryo 1
 void qrKarar(int gelenDeger)
 {
-  switch (gelenDeger)
-  {
-  case 0:
-    break;
+  switch (gelenDeger){
   case 1:
-    motorKirko.CCLKWTURN(100);
-    delay(100);
+
+    break;
+  case 2:
+
+    break;
+  case 3:
+
+    break;
+
+  case 4:
+
+    break;
+  case 5:
+
+    break;
+  case 6:
+
+    break;
+  case 7:
+
+    break;
+  case 8:
+
+    break;
+  case 9:
+
+    break;
+  case 10:
+
+    break;
+  case 11:
+
+    break;
+  case 12:
+
+    break;
+  case 13:
+
+    break;
+  case 14:
+
+    break;
+  case 15:
+
+    break;
+
+  case 16:
+
+    break;
+  case 17:
+
+    break;
+  case 18:
+
+    break;
+  case 19:
+
+    break;
+  case 20:
+
+    break;
+  case 21:
+
+    break;
+  case 22:
+    motor.CCLKWTURN(175);
+    motor2.CLKWTURN(50);
+    break;
+  case 23:
+    motor.CCLKWTURN(50);
+    motor2.CCLKWTURN(50);
+    break;
+  case 24:
+
+    break;
+  case 25:
+
+    break;
+  case 26:
+
+    break;
+  case 27:
+
+    break;
+  case 28:
+
+    break;
+  case 29:
+
+    break;
+  case 30:
+
+    break;
+  case 31:
+
+    break;
+  case 32:
+
     break;
   }
-  // analogWrite(buzzer, 150);
-  // delay(500);
 }
 
 /**
@@ -373,12 +487,6 @@ void OtonomHareket(){
 }
 #pragma endregion
 
-#pragma region NeoPixel
-void NeoPixel()
-{
-}
-#pragma endregion
-
 #pragma region Sarj
 void Sarj()
 {
@@ -393,7 +501,102 @@ void Sarj()
     vOrtalama = (vA + vB) / 2;
     vToplam = vToplam + vOrtalama;
     float v = vToplam / 30;
-    int yuzde = map(v, 22, 25, 0, 100);
+    int yuzde = map(v, 23.5, 25, 0, 100); // yüzde olarak veriyor
   }
 }
 #pragma endregion
+
+#pragma region Sagled
+
+void Sag_led()
+{
+  for (int i = 0; i <= 35; i++)
+  {
+    leds[i] = sagrenk;
+  }
+  FastLED.show();
+}
+#pragma endregion Sagled
+
+#pragma region Arkaled
+void Arka_led()
+{ // 36-45
+  for (int i = 36; i <= 45; i++)
+  {
+    leds[i] = arkarenk;
+  }
+  FastLED.show();
+}
+
+#pragma endregion Arkaled
+
+#pragma region Solled
+
+void Sol_led()
+{ // 46-81
+  for (int i = 46; i <= 81; i++)
+  {
+    leds[i] = solrenk;
+  }
+  FastLED.show();
+}
+
+#pragma endregion Solled
+
+#pragma region Onled
+void On_led()
+{ // 82- 91
+  for (int i = 82; i <= 91; i++)
+  {
+    leds[i] = onrenk;
+  }
+  FastLED.show();
+}
+
+#pragma endregion Onled
+
+#pragma region ustsag
+void ust_sag()
+{ // 92 - 114
+  for (int i = 92; i <= 114; i++)
+  {
+    leds[i] = ustsagrenk;
+  }
+  FastLED.show();
+}
+#pragma endregion ustsag
+
+#pragma region uston
+
+void Ust_on()
+{ // 115 - 145
+  for (int i = 115; i <= 145; i++)
+  {
+    leds[i] = ustonrenk;
+  }
+  FastLED.show();
+}
+
+#pragma endregion uston
+
+#pragma region ustsol
+void ust_sol()
+{ // 146 - 168
+  for (int i = 146; i <= 168; i++)
+  {
+    leds[i] = ustsolrenk;
+  }
+  FastLED.show();
+}
+#pragma endregion ustsol
+
+#pragma region ustarka
+void Ust_arka()
+{ // 169 - 199
+  for (int i = 169; i <= 199; i++)
+  {
+    leds[i] = ustarkarenk;
+  }
+  FastLED.show();
+}
+#pragma endregion ustarka
