@@ -35,7 +35,7 @@
 #define sol_optik 40
 #pragma endregion
 
-#define Röle 42
+#define Role 42
 
 #pragma region Optik
 const int onOptikSayisi = 3;
@@ -128,7 +128,7 @@ int buzzer = 22;
 void setup()
 {
   Serial.begin(9600); // Seri Haberleşme Başlar
-  // radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, 9600, RF24_250KBPS); // Radyo Frekans Değeri
+  radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, RF24_250KBPS); // Radyo Frekans Değeri
   mySerial.begin(9600); // Seri Kanal Açılır
   pinMode(buzzer, OUTPUT);
 #pragma region Gyro Setup
@@ -146,7 +146,7 @@ char a[] = {"Q1;"}; // char* a ile aynı deger
 void loop()
 {
 
-  qrKodKontrol();
+  /*qrKodKontrol();
   int deger = qrOku();
   qrKarar(deger);
 
@@ -191,12 +191,12 @@ void loop()
     break;
   }
 
-  Gyro();
+  Gyro();*/
 
   //  Radyodan veriyi alır.
-  /*radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
+  radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
   switchDurumu = alinanVeri[3];
-  // Kontrol();
+  Kontrol();
 }
 
 #pragma region Kumanda Kontrol
