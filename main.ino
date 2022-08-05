@@ -121,15 +121,15 @@ const int MPU_addr = 0x68;                 // Sensörün Adresi
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ; // Okumakta Kullanılcak Olan Değişkenler
 int minVal = 265;                          // Değerler
 int maxVal = 402;
-double xEkseni, yEkseni, zEkseni, Egim; // Değerlerin Kaydedildiği Değişkenler
+double xEkseni, yEkseni, zEkseni; // Değerlerin Kaydedildiği Değişkenler
 int buzzer = 22;
 #pragma endregion
 
 void setup()
 {
-  Serial.begin(9600); // Seri Haberleşme Başlar
+  Serial.begin(9600);                                                       // Seri Haberleşme Başlar
   radyo = radyoModulu.nRF24AliciKurulum(radyo, RF24_PA_HIGH, RF24_250KBPS); // Radyo Frekans Değeri
-  mySerial.begin(9600); // Seri Kanal Açılır
+  mySerial.begin(9600);                                                     // Seri Kanal Açılır
   pinMode(buzzer, OUTPUT);
 #pragma region Gyro Setup
   Wire.begin();
@@ -145,66 +145,66 @@ void setup()
 char a[] = {"Q1;"}; // char* a ile aynı deger
 void loop()
 {
+  /*
+    qrKodKontrol();
+    int deger = qrOku();
+    qrKarar(deger);
 
-  /*qrKodKontrol();
-  int deger = qrOku();
-  qrKarar(deger);
-
-  switch (EngelKontrol())
-  {
-  case 0:
-    OtonomHareket();
-    break;
-  case 1:
-    digitalWrite(buzzer, 1);
-    sagrenk = CRGB ::Red;
-    Ust_on();
-    sagrenk = CRGB ::Red;
-    On_led();
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    delay(15000);
-    if (EngelKontrol() != 0)
+    switch (EngelKontrol())
     {
+    case 0:
+      OtonomHareket();
+      break;
+    case 1:
+      digitalWrite(buzzer, 1);
+      sagrenk = CRGB ::Red;
+      Ust_on();
+      sagrenk = CRGB ::Red;
+      On_led();
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+      delay(15000);
+      if (EngelKontrol() != 0)
+      {
 
-      motor.CLKWTURN(50);
-      motor.CCLKWTURN(172);
+        motor.CLKWTURN(50);
+        motor.CCLKWTURN(172);
+      }
+
+      break;
+    case 2:
+      digitalWrite(buzzer, 1);
+      ustonrenk = CRGB ::Red;
+      Ust_on();
+      onrenk = CRGB ::Red;
+      On_led();
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+      delay(15000);
+      break;
+    case 3:
+      digitalWrite(buzzer, 1);
+      ustonrenk = CRGB ::Red;
+      Ust_on();
+      onrenk = CRGB ::Red;
+      On_led();
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+      delay(1500);
+      break;
+    default:
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+      break;
     }
-
-    break;
-  case 2:
-    digitalWrite(buzzer, 1);
-    ustonrenk = CRGB ::Red;
-    Ust_on();
-    onrenk = CRGB ::Red;
-    On_led();
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    delay(15000);
-    break;
-  case 3:
-    digitalWrite(buzzer, 1);
-    ustonrenk = CRGB ::Red;
-    Ust_on();
-    onrenk = CRGB ::Red;
-    On_led();
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    delay(1500);
-    break;
-  default:
-    motor.CCLKWTURN(0);
-    motor2.CCLKWTURN(0);
-    break;
-  }
-
-  Gyro();*/
+  */
+  Gyro();
+  Serial.println(zEkseni);
   if (Sarj() <= 12)
   {
     ustsagrenk = CRGB::OrangeRed;
     ust_sag();
   }
-  Gyro();
 
   //  Radyodan veriyi alır.
   radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
@@ -294,7 +294,7 @@ void KrikoHareket()
 }
 #pragma endregion
 
-void Gyro()
+double Gyro()
 {
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x3B);
@@ -307,8 +307,9 @@ void Gyro()
   xEkseni = RAD_TO_DEG * (atan2(-yAng, -zAng) + PI);
   yEkseni = RAD_TO_DEG * (atan2(-xAng, -zAng) + PI);
   zEkseni = RAD_TO_DEG * (atan2(-yAng, -xAng) + PI);
-  Egim = map(zEkseni, 0, 90, 0, 100);
-  // Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
+  // double _egim = map(zEkseni, 0, 90, 0, 100);
+  // return _egim;
+  //  Gyro değerlerini okuyor ve açısal değerlere çeviriyor(xEkseni)
 }
 
 #pragma region Qrkod
@@ -465,11 +466,7 @@ int EngelKontrol()
 }
 
 #pragma region Otonom Hareket
-/**
- * @brief raspberry pi'dan gelen int degerine gore motorlarin hareketini saglar
- * @todo motorlarin karar sistemi bozuk, calistirir calistrmaz robot sola hareket etmeye basliyor.
- * @param val
- */
+
 void OtonomHareket()
 {
   if (Serial.available() > 0)
