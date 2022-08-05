@@ -164,12 +164,19 @@ void loop()
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
     delay(15000);
+    if (EngelKontrol() != 0)
+    {
+
+      motor.CLKWTURN(50);
+      motor.CCLKWTURN(172);
+    }
+
     break;
   case 2:
     digitalWrite(buzzer, 1);
-    sagrenk = CRGB ::Red;
+    ustonrenk = CRGB ::Red;
     Ust_on();
-    sagrenk = CRGB ::Red;
+    onrenk = CRGB ::Red;
     On_led();
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
@@ -177,9 +184,9 @@ void loop()
     break;
   case 3:
     digitalWrite(buzzer, 1);
-    sagrenk = CRGB ::Red;
+    ustonrenk = CRGB ::Red;
     Ust_on();
-    sagrenk = CRGB ::Red;
+    onrenk = CRGB ::Red;
     On_led();
     motor.CCLKWTURN(0);
     motor2.CCLKWTURN(0);
@@ -192,6 +199,12 @@ void loop()
   }
 
   Gyro();*/
+  if (Sarj() <= 12)
+  {
+    ustsagrenk = CRGB::OrangeRed;
+    ust_sag();
+  }
+  Gyro();
 
   //  Radyodan veriyi alır.
   radyoModulu.nRF24VeriAl(radyo, alinanVeri, 4);
@@ -255,7 +268,7 @@ void Hareket()
     }
     else if (alinanVeri[i] < sabitDeger[i])
     {
-      //geri
+      // geri
       motorlar[i].CLKWTURN(map(alinanVeri[i], 0, sabitDeger[i], -255, 0) * -1);
     }
   }
@@ -327,10 +340,11 @@ int qrOku()
     return gonderilecek;
   }
 }
-#pragma region Seneryo 1
+#pragma region Senaryo 1
 void qrKarar(int gelenDeger)
 {
-  switch (gelenDeger){
+  switch (gelenDeger)
+  {
   case 1:
 
     break;
@@ -456,40 +470,42 @@ int EngelKontrol()
  * @todo motorlarin karar sistemi bozuk, calistirir calistrmaz robot sola hareket etmeye basliyor.
  * @param val
  */
-void OtonomHareket(){
+void OtonomHareket()
+{
   if (Serial.available() > 0)
   {
     String data = Serial.readStringUntil('\n');
     switch (data[0])
     {
-      case 'N':
-        motor.CCLKWTURN(25);
-        motor2.CCLKWTURN(25);
-        break;
-      case 'R':
-        motor.CCLKWTURN(50);
-        motor2.CCLKWTURN(25);
-        break;
-      case 'L':
-        motor.CCLKWTURN(25);
-        motor2.CCLKWTURN(50);
-        break;
-      case 'X':
-        motor.CCLKWTURN(0);
-        motor2.CCLKWTURN(0);
-        break;
-      default:
-        motor.CCLKWTURN(0);
-        motor2.CCLKWTURN(0);
-        break;
+    case 'N':
+      motor.CCLKWTURN(25);
+      motor2.CCLKWTURN(25);
+      break;
+    case 'R':
+      motor.CCLKWTURN(50);
+      motor2.CCLKWTURN(25);
+      break;
+    case 'L':
+      motor.CCLKWTURN(25);
+      motor2.CCLKWTURN(50);
+      break;
+    case 'X':
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+      break;
+    default:
+      motor.CCLKWTURN(0);
+      motor2.CCLKWTURN(0);
+      break;
     }
   }
 }
 #pragma endregion
 
 #pragma region Sarj
-void Sarj()
+int Sarj()
 {
+  int yuzde = 0;
   for (int i = 0; i < 30; i++)
   {
     float okunanA = analogRead(A12);
@@ -501,8 +517,9 @@ void Sarj()
     vOrtalama = (vA + vB) / 2;
     vToplam = vToplam + vOrtalama;
     float v = vToplam / 30;
-    int yuzde = map(v, 23.5, 25, 0, 100); // yüzde olarak veriyor
+    yuzde = map(v, 23.5, 25, 0, 100); // yüzde olarak veriyor
   }
+  return yuzde;
 }
 #pragma endregion
 
